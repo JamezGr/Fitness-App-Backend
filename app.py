@@ -51,7 +51,7 @@ def create_user():
 
     new_user.create_user()
 
-    return jsonify(SuccessMessage(user).create_register()), 201
+    return jsonify(SuccessMessage(user).create_user()), 201
 
 
 @app.route("/api/login", methods=['POST'])

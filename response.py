@@ -16,7 +16,7 @@ class SuccessMessage(object):
                 "message": "Successfully Logged In"
         }
 
-    def create_register(self):
+    def create_user(self):
         return {
             "status": "201",
             "data": {

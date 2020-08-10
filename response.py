@@ -50,6 +50,13 @@ class ErrorMessage:
     }
 
     REGISTER = {
+        "INVALID_EMAIL": {
+            "status": "422",
+            "source": {"pointer": "/api/users"},
+            "title": "Invalid Email Sent",
+            "detail": "Email Requested does not exist or has an Invalid Format"
+        }
+
         "USERNAME_EXISTS": {
             "status": "409",
             "source": {"pointer": "/api/users"},

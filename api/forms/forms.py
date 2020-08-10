@@ -2,6 +2,7 @@ import base64
 import os
 import utils
 import json
+import re
 
 from config import Config, DevelopmentConfig, TestingConfig, ProductionConfig
 from bson.json_util import dumps, loads
@@ -70,6 +71,14 @@ class RegisterForm(object):
 
         return True
 
+    def check_email_valid(self):
+        email_regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+        if(re.search(email_regex, self.email)):  
+            return True
+        
+        else:
+            return False
+
     def check_user_exists(self):
         db_cluster_collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["logins"]]
         emails_found = db_cluster_collection.find({"email": {"$regex": '^' + self.email + '$'}})
@@ -99,13 +108,13 @@ class LoginForm(object):
 
 
     def check_user_exists(self):
-    db_cluster_collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["logins"]]
-    users_found = db_cluster_collection.find({"user": {"$regex": '^' + self.user + '$'}})
+        db_cluster_collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["logins"]]
+        users_found = db_cluster_collection.find({"user": {"$regex": '^' + self.user + '$'}})
 
-    if users_found.count() > 0:
-        return True
-    else:
-        return False
+        if users_found.count() > 0:
+            return True
+        else:
+            return False
 
 
     def check_user_credentials(self):

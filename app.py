@@ -1,27 +1,20 @@
-import model
-import forms
+from api.config import Config
 
-from response import ErrorMessage, SuccessMessage
+from api.response import *
+from api.models.user import User
+from api.forms.forms import *
+
 from flask import Flask, abort, request, jsonify
-from config import Config
 
 URI_CLUSTER = Config.DB_CONNECTION_STRING
 DB_CLUSTER = URI_CLUSTER[Config.DB_CLUSTER_NAME]
 
-# cluster = pymongo.MongoClient("mongodb+srv://admin:7VCbdWPGfZsXQ95s@fitness-app.bi9i8.mongodb.net/test?retryWrites=true&w=majority")
-# DB_USER = "admin"
-# DB_PASSWORD = "7VCbdWPGfZsXQ95s"
-
-# DB_CLUSTER = cluster["fitness_app"]
-# DB_CLUSTER_COLLECTION = DB_CLUSTER["logins"]
-
-# collection.insert_one({"id": 0, "user_name": "test"})
 
 app = Flask(__name__)
 
 
 @app.route("/")
-def hello():
+def hello_world():
     return "test"
 
 
@@ -34,20 +27,20 @@ def create_user():
     password = request.json.get("password")
     confirm_password = request.json.get("confirm_password")
 
-    user = model.User(email, username, password, confirm_password)
-    new_user = forms.RegisterForm(user)
+    user = User(email, username, password, confirm_password)
+    new_user = RegisterForm(user)
+
+    if new_user.check_email_valid() is False:
+        return jsonify({"errors": [ErrorMessage.REGISTER["INVALID_EMAIL"]]}), 401
+
+    if None or "" in (email, username, password, confirm_password):
+        return jsonify({"errors": [ErrorMessage.REGISTER["INVALID_REQUEST"]]}), 400
 
     if new_user.check_user_exists() is True:
-        # abort(404, description="Username/Email already exists")
-        return jsonify(ErrorMessage.REGISTER["USERNAME_EXISTS"]), 409
+        return jsonify({"errors": [ErrorMessage.REGISTER["USERNAME_EXISTS"]]}), 409
 
     if new_user.validate() is False:
-        # abort(404, description="Invalid Username Requested")
-        return jsonify(ErrorMessage.REGISTER["INVALID_CREDENTIALS"]), 401
-
-    if None in (email, username, password, confirm_password):
-        # abort(404, description="Resource not found")
-        return jsonify(ErrorMessage.REGISTER["INVALID_REQUEST"]), 400
+        return jsonify({"errors": [ErrorMessage.REGISTER["INVALID_CREDENTIALS"]]}), 401
 
     new_user.create_user()
 
@@ -61,11 +54,10 @@ def login():
     username = request.json.get("username")
     password = request.json.get("password")
 
-    user = model.User(email=None, user=username, password=password, confirm_password=None)
-    login_user = forms.LoginForm(user)
+    user = User(email=None, user=username, password=password, confirm_password=None)
+    login_user = LoginForm(user)
 
     if login_user.check_user_credentials() is False:
-        # abort(404, description="Invalid Username or Password Entered")
         return jsonify(ErrorMessage.LOGIN["INVALID_CREDENTIALS"]), 401
 
     return jsonify(SuccessMessage(user).set_login()), 200

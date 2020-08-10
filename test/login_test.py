@@ -1,6 +1,7 @@
 import unittest
 import pytest
 
+from api.forms.forms import *
 from forms import *
 from model import *
 
@@ -14,7 +15,7 @@ class TestLogin(unittest.TestCase):
 
         print(self._testMethodName)
 
-        self.user = User(email=email, user=username, password=password, confirm_password= password)
+        self.user = User(email=email, user=username, password=password, confirm_password=password)
         RegisterForm(self.user).create_user()
 
     def tearDown(self):
@@ -38,15 +39,15 @@ class TestLogin(unittest.TestCase):
 
     
 
-# def test_invalid_username(self):
-# Test with Invalid Username
+    # Test with Invalid Username
+    def test_invalid_username(self):
+        test_user = User(email=email, user="TEST_INVALID_USERNAME", password="TEST_INVALID_PASSWORD", confirm_password= None)
+        self.assertFalse(LoginForm(test_user).check_user_exists())
 
-# def test_invalid_username(self):
-# Test with Invalid Username
 
-# def test_empty_login(self):
-# Test with Empty Username + Empty Password
-
+    def test_empty_login(self):
+        test_user = User(email=email, user="", password="", confirm_password= None)
+        self.assertFalse(LoginForm(test_user).check_user_exists())
 
 if __name__ == '__main__':
     unittest.main()

@@ -2,6 +2,7 @@ import base64
 import os
 import utils
 import json
+import re
 
 from config import Config, DevelopmentConfig, TestingConfig, ProductionConfig
 from bson.json_util import dumps, loads
@@ -48,6 +49,9 @@ class RegisterForm(object):
             any(character_type in self.password for character_type in password_character_types["SYMBOLS"])
         ])
 
+        if self.check_email_valid() is False:
+            return False 
+
         # check username satisfies min and max length rules
         if len(self.user) < user_settings["MIN_LENGTH"] or len(self.user) > user_settings["MAX_LENGTH"]:
             return False
@@ -69,6 +73,14 @@ class RegisterForm(object):
             return False
 
         return True
+
+    def check_email_valid(self):
+        email_regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+        if(re.search(email_regex, self.email)):  
+            return True
+        
+        else:
+            return False
 
     def check_user_exists(self):
         db_cluster_collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["logins"]]

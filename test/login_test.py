@@ -19,6 +19,7 @@ class TestLogin(unittest.TestCase):
 
     def tearDown(self):
          ManageForm(self.user).delete_user()
+         print("\n")
 
 
     # Test with Valid Username + Valid Password

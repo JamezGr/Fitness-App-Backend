@@ -83,13 +83,17 @@ class RegisterForm(object):
         user_settings = RegisterForm.USER_SETTINGS
 
         # check username satisfies min and max length rules
-        if len(self.user) < user_settings["MIN_LENGTH"] or len(self.user) > user_settings["MAX_LENGTH"]:
-            print("Username does not satisfy min and max length rules")
+        if len(self.user) < user_settings["MIN_LENGTH"]:
+            print("Username does not satisfy Min length rule")
+            return False
+
+        if len(self.user) > user_settings["MAX_LENGTH"]:
+            print("Username does not satisfy Max length rule")
             return False
 
         # check for illegal characters in username
         if any(illegal_character in self.user for illegal_character in user_settings["ILLEGAL_CHARACTERS"]):
-            print("Illegal Character(s) found in Username.")
+            print("Illegal Character(s) found in Username")
             return False
 
         # check for spaces in User
@@ -110,8 +114,12 @@ class RegisterForm(object):
         ])
 
         # check password satisfies min and max length rules
-        if len(self.password) < password_settings["MIN_LENGTH"] or len(self.password) > password_settings["MAX_LENGTH"]:
-            print("Password does not satisfy min and max length rules")
+        if len(self.password) < password_settings["MIN_LENGTH"]:
+            print("Password does not satisfy min length rules")
+            return False
+
+        if len(self.password) > password_settings["MAX_LENGTH"]:
+            print("Password does not satisfy max length rules")
             return False
 
         # check password satisfies minimum number of character types

@@ -19,7 +19,7 @@ def hello_world():
 
 
 @app.route("/api/users", methods=['POST'])
-def create_user():
+def create_username():
     data = request.json
 
     email = request.json.get("email")
@@ -36,15 +36,15 @@ def create_user():
     if None or "" in (email, username, password, confirm_password):
         return jsonify({"errors": [ErrorMessage.REGISTER["INVALID_REQUEST"]]}), 400
 
-    if new_user.check_user_exists() is True:
+    if new_user.check_username_exists() is True:
         return jsonify({"errors": [ErrorMessage.REGISTER["USERNAME_EXISTS"]]}), 409
 
     if new_user.validate() is False:
         return jsonify({"errors": [ErrorMessage.REGISTER["INVALID_CREDENTIALS"]]}), 401
 
-    new_user.create_user()
+    new_user.create_username()
 
-    return jsonify(SuccessMessage(user).create_user()), 201
+    return jsonify(SuccessMessage(user).create_username()), 201
 
 
 @app.route("/api/login", methods=['POST'])

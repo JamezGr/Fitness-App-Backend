@@ -1,4 +1,4 @@
-from utils import encode_auth_token
+from api.utils import encode_auth_token
 
 
 class SuccessMessage(object):
@@ -16,7 +16,7 @@ class SuccessMessage(object):
                 "message": "Successfully Logged In"
         }
 
-    def create_user(self):
+    def create_username(self):
         return {
             "status": "201",
             "data": {
@@ -56,12 +56,11 @@ class ErrorMessage:
             "title": "Invalid Email Sent",
             "detail": "Email Requested does not exist or has an Invalid Format"
         },
-
         "USERNAME_EXISTS": {
             "status": "409",
             "source": {"pointer": "/api/users"},
-            "title": "Username already exists",
-            "detail": "Username Entered already Exists."
+            "title": "Username and/or Email already exists",
+            "detail": "Username and/or Email Entered already Exists."
         },
         "INVALID_CREDENTIALS": {
             "status": "422",

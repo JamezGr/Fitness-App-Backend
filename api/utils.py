@@ -5,7 +5,7 @@ import os
 import datetime
 import jwt
 
-from config import Config
+from api.config import Config
 
 
 def hash_password(password):

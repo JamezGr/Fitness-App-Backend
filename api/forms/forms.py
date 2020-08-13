@@ -196,3 +196,42 @@ class ManageForm(object):
         user_to_delete = {"email": self.email, "user": self.user}
 
         db_cluster_collection.delete_one(user_to_delete)
+
+
+class UserStatsForm(object):
+    def __init__(self, form_data):
+        self.user = form_data.user
+
+    def get_stats(self):
+        db_cluster_collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["user_stats"]]
+        users_found = db_cluster_collection.find({"user": {"$regex": '^' + self.user + '$'}})
+
+        if users_found.count() == 0:
+            return None
+
+        else:
+            user_details = json.loads(dumps(users_found))[0]
+            return user_details
+    
+    # def update_stats(self):
+    #     db_cluster_collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["user_stats"]]
+    #     users_found = db_cluster_collection.find_one_and_update({"user": {"$regex": '^' + self.user + '$'}})
+
+    def create_stats(self):
+        try:
+            db_cluster_collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["user_stats"]]
+            db_cluster_collection.insert_one({
+                "user": self.user,
+                "gender": None,
+                "date_of_birth": None,
+                "height": None,
+                "weight": None,
+                "avatar": None
+            })
+
+            return True
+        except:
+            return False
+
+
+    # def create_stats(self): 

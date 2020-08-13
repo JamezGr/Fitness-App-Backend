@@ -26,6 +26,15 @@ class SuccessMessage(object):
             "message": "Successfully Registered"
         }
 
+    def create_user_stats(self):
+        return {
+            "status": "201",
+            "data": {
+                "username": self.username,
+            },
+            "message": "Successfully Created Stats."
+        }
+
 
 class ErrorMessage:
     LOGIN = {
@@ -75,4 +84,31 @@ class ErrorMessage:
             "title": "Invalid Request",
             "detail": "The request could not be satisfied."
         }
+    }
+
+    USERS_STATS = {
+        "NO_STATS_AVAILABLE": { 
+            "status": "422",
+            "source": {"pointer": "/api/users/<user>/stats"},
+            "title": "No Stats Available.",
+            "detail": "No Stats Available for Requested Username."
+        },
+        "STATS_ALREADY_EXIST": {
+            "status": "409",
+            "source": {"pointer": "/api/users/<user>/stats"},
+            "title": "Stats already Exist.",
+            "detail": "Stats already Exist for Requested User."
+        }
+    }
+
+    FORBIDDEN = {
+        "status": "403",
+        "title": "Forbidden",
+        "detail": "Not Authorized to access this resource/api."
+    }
+
+    UNKNOWN_ERROR = {
+        "status": "0",
+        "title": "HttpErrorResponse",
+        "detail": "Unknown Error Occured."
     }

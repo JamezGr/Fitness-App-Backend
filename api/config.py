@@ -12,7 +12,8 @@ class Config:
     DB_CLUSTER = DB_CONNECTION_STRING[DB_CLUSTER_NAME]
 
     COLLECTION_NAMES = {
-        "logins": "logins"
+        "logins": "logins",
+        "user_stats": "user_stats"
     }
 
     SECRET_KEY = b"uP0tGp(.d:J:Uo}<AoeK|6r`XJ-*S0"

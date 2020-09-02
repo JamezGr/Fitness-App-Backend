@@ -30,3 +30,13 @@ Start API:
 ```
 $ python api.py
 ```
+
+## Test
+Activate your virtualenv (see Installation).
+```
+$ cd test
+```
+Example Usage:
+```
+$ python login_test.py
+```

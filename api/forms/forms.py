@@ -1,9 +1,14 @@
 import base64
 import os
-from api.utils import *
 import json
 import re
+import jsonschema
 
+
+from flask import jsonify
+from jsonschema import validate
+from api.models.user import UserStats
+from api.utils import *
 from api.config import Config, DevelopmentConfig, TestingConfig, ProductionConfig
 from bson.json_util import dumps, loads
 
@@ -16,7 +21,7 @@ class RegisterForm(object):
     USER_SETTINGS = {
         "MIN_LENGTH": 3,
         "MAX_LENGTH": 30,
-        "ILLEGAL_CHARACTERS": list('&=()<>+,')
+        "ILLEGAL_CHARACTERS": list("'&=()<>+,")
     }
 
     PASSWORD_SETTINGS = {
@@ -199,8 +204,9 @@ class ManageForm(object):
 
 
 class UserStatsForm(object):
-    def __init__(self, form_data):
+    def __init__(self, form_data, stats = None):
         self.user = form_data.user
+        self.stats = stats
 
     def get_stats(self):
         db_cluster_collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["user_stats"]]
@@ -213,10 +219,6 @@ class UserStatsForm(object):
             user_details = json.loads(dumps(users_found))[0]
             return user_details
     
-    # def update_stats(self):
-    #     db_cluster_collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["user_stats"]]
-    #     users_found = db_cluster_collection.find_one_and_update({"user": {"$regex": '^' + self.user + '$'}})
-
     def create_stats(self):
         try:
             db_cluster_collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["user_stats"]]
@@ -233,5 +235,26 @@ class UserStatsForm(object):
         except:
             return False
 
+    def update_stats(self):
+        if self.get_stats() == None:
+            return False
+        
+        print(json.loads(json.dumps(self.stats)))
+
+        try:
+            stats = json.loads(self.stats)
+            jsonschema.validate(stats, UserStats.updatable_fields)
+
+        except jsonschema.exceptions.ValidationError as e:
+            print("Invalid Format", e)
+
+
+        user_to_update = { "user": self.user }
+        stats_to_update = {'$set': json.loads(self.stats)}
+
+        db_cluster_collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["user_stats"]]
+        db_cluster_collection.find_one_and_update(user_to_update, stats_to_update)
+
+        return self.get_stats()
 
     # def create_stats(self): 

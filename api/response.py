@@ -87,6 +87,12 @@ class ErrorMessage:
     }
 
     USERS_STATS = {
+        "INVALID_USER": {
+            "status": "400",
+            "source": {"pointer": "/api/users/<user>/stats"},
+            "title": "Invalid User.",
+            "detail": "Unable to create Stats for User that does not exist."
+        },
         "NO_STATS_AVAILABLE": { 
             "status": "422",
             "source": {"pointer": "/api/users/<user>/stats"},
@@ -111,4 +117,10 @@ class ErrorMessage:
         "status": "0",
         "title": "HttpErrorResponse",
         "detail": "Unknown Error Occured."
+    }
+
+    INVALID_REQUEST = {
+        "status": "401",
+        "title": "Invalid Request",
+        "detail": "The request could not be satisfied."
     }

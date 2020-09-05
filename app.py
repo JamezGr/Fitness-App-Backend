@@ -15,8 +15,8 @@ app = Flask(__name__)
 
 
 @app.route("/")
-def hello_world():
-    return "test"
+def default_response():
+    return jsonify(ErrorMessage.INVALID_REQUEST), 401
 
 
 @app.route("/api/users", methods=['POST'])
@@ -93,9 +93,15 @@ def get_user_stats(user):
         return jsonify({"errors": [ErrorMessage.USERS_STATS["NO_STATS_AVAILABLE"]]}), 422
 
     else:
-        return UserStatsForm(user).get_stats()
+        return UserStatsForm(user_to_check).get_stats()
 
-# @app.route("/api/users/<user>/stats", methods=['PUT'])
+@app.route("/api/users/<user>/stats", methods=['PUT'])
+def update_user_stats(user):
+    user_to_check = User(email=None, user=user, password=None, confirm_password=None)
+
+    updated_stats = json.dumps(request.json)
+
+    return jsonify(UserStatsForm(user_to_check, updated_stats).update_stats())
 
 if __name__ == "__main__":
     app.run()

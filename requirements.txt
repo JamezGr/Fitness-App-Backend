@@ -7,7 +7,7 @@ configparser==4.0.2
 contextlib2==0.6.0.post1
 dnspython==1.16.0
 enum34==1.1.10
--e git+https://github.com/JamezGr/Fitness-App-Backend.git@a5c6643e444eb68a9d92252c191bd04fc118fdfd#egg=fitness_app
+-e git+git@github.com:JamezGr/Fitness-App-Backend.git@3fb922b08162c4a7f95fa70d3751184be051c4c2#egg=fitness_app
 Flask==1.1.2
 funcsigs==1.0.2
 functools32==3.2.3.post2

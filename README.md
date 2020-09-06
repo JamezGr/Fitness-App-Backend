@@ -28,7 +28,7 @@ $ source fitness-app/bin/activate
 ```
 Start API:
 ```
-$ python api.py
+$ python app.py
 ```
 
 ## Test

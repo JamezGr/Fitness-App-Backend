@@ -54,7 +54,7 @@ POST /api/login
 {
     "data": {
         "auth_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1OTkxNjY1NTEsInN1YiI6InRlc3RfYWNjb3VudCIsImV4cCI6MTU5OTE2NzQ1MX0.9920Du1VVx55Ic3JmvoFzO87HfLt1RXz7l6JlVE4VO4",
-        "username": "test_account"
+        "username": "Test123"
     },
     "message": "Successfully Logged In",
     "status": "200"

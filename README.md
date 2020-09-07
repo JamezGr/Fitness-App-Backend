@@ -30,6 +30,7 @@ Start API:
 ```
 $ python app.py
 ```
+See API Docs (api/readme.MD) for usage
 
 ## Test
 Activate your virtualenv (see Installation).
@@ -40,3 +41,4 @@ Example Usage:
 ```
 $ python login_test.py
 ```
+

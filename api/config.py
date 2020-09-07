@@ -1,12 +1,16 @@
 import pymongo
 import os
 
+from environs import Env
+
+env = Env()
+env.read_env()
 
 class Config:
-    DB_USERNAME = 'admin'
-    DB_PASSWORD = '7VCbdWPGfZsXQ95s'
-    DB_CLUSTER_NAME = 'fitness_app'
-    DB_URI = 'fitness-app.bi9i8.mongodb.net/test?retryWrites=true&w=majority'
+    DB_USERNAME = env("DB_USERNAME")
+    DB_PASSWORD = env("DB_PASS")
+    DB_CLUSTER_NAME = env("DB_CLUSTER_NAME")
+    DB_URI = env("DB_URI")
 
     DB_CONNECTION_STRING = pymongo.MongoClient("mongodb+srv://" + DB_USERNAME + ":" + DB_PASSWORD + "@" + DB_URI)
     DB_CLUSTER = DB_CONNECTION_STRING[DB_CLUSTER_NAME]

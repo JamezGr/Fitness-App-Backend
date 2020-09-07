@@ -30,7 +30,7 @@ Start API:
 ```
 $ python app.py
 ```
-See API Docs (api/readme.MD) for usage
+See API Docs api/README for usage
 
 ## Test
 Activate your virtualenv (see Installation).

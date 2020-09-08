@@ -104,6 +104,6 @@ def update_user_stats(user):
     return jsonify(UserStatsForm(user_to_check, updated_stats).update_stats())
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True, port=3000)
 
 

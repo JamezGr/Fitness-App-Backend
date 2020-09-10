@@ -11,7 +11,7 @@ class SuccessMessage(object):
                 "status": "200",
                 "data": {
                     "username": self.username,
-                    "auth_token": encode_auth_token(self.username)
+                    "auth_token": encode_auth_token(self.username).decode('utf-8')
                 },
                 "message": "Successfully Logged In"
         }

@@ -67,7 +67,7 @@ def login():
 
     @after_this_request
     def set_auth_cookie(response):
-        response = make_response("Authenticated")
+        response = make_response(login_message)
         response.set_cookie('Bearer', auth_token, max_age=64800, httponly=True)
         return response
 

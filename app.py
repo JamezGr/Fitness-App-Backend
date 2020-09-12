@@ -5,7 +5,7 @@ from api.models.user import User
 from api.forms.forms import *
 from api.utils import *
 
-from flask import Flask, abort, request, jsonify
+from flask import Flask, abort, request, jsonify, after_this_request, make_response
 
 URI_CLUSTER = Config.DB_CONNECTION_STRING
 DB_CLUSTER = URI_CLUSTER[Config.DB_CLUSTER_NAME]
@@ -61,7 +61,17 @@ def login():
     if login_user.check_user_credentials() is False:
         return jsonify(ErrorMessage.LOGIN["INVALID_CREDENTIALS"]), 401
 
-    return jsonify(SuccessMessage(user).set_login()), 200
+    login_message = SuccessMessage(user).set_login()
+    auth_token = login_message["data"]["auth_token"]
+
+
+    @after_this_request
+    def set_auth_cookie(response):
+        response = make_response("Authenticated")
+        response.set_cookie('Bearer', auth_token, max_age=64800, httponly=True)
+        return response
+
+    return jsonify(login_message), 200
 
 # @app.route("/api/users/<user>/stats", methods=['PUT'])
 

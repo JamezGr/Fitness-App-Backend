@@ -6,12 +6,14 @@ from api.forms.forms import *
 from api.utils import *
 
 from flask import Flask, abort, request, jsonify, after_this_request, make_response
+from flask_cors import CORS
 
 URI_CLUSTER = Config.DB_CONNECTION_STRING
 DB_CLUSTER = URI_CLUSTER[Config.DB_CLUSTER_NAME]
 
 
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route("/")

@@ -8,8 +8,6 @@ from api.utils import *
 from flask import Flask, abort, request, jsonify, after_this_request, make_response, redirect
 from flask_cors import CORS
 
-from urlparse import urlparse
-
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
     jwt_refresh_token_required, create_refresh_token,

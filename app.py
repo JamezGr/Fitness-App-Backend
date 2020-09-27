@@ -5,15 +5,30 @@ from api.models.user import User
 from api.forms.forms import *
 from api.utils import *
 
-from flask import Flask, abort, request, jsonify, after_this_request, make_response
+from flask import Flask, abort, request, jsonify, after_this_request, make_response, redirect
 from flask_cors import CORS
+
+from urlparse import urlparse
+
+from flask_jwt_extended import (
+    JWTManager, jwt_required, create_access_token,
+    jwt_refresh_token_required, create_refresh_token,
+    get_jwt_identity, verify_jwt_refresh_token_in_request
+)
 
 URI_CLUSTER = Config.DB_CONNECTION_STRING
 DB_CLUSTER = URI_CLUSTER[Config.DB_CLUSTER_NAME]
 
-
 app = Flask(__name__)
-CORS(app)
+app.config['JWT_SECRET_KEY'] = Config.SECRET_KEY
+
+jwt = JWTManager(app)
+
+CORS(app, resources={
+    r"/*": {
+        "origins": "*"
+    }
+})
 
 
 @app.route("/")
@@ -63,17 +78,15 @@ def login():
     if login_user.check_user_credentials() is False:
         return jsonify(ErrorMessage.LOGIN["INVALID_CREDENTIALS"]), 401
 
-    login_message = SuccessMessage(user).set_login()
-    auth_token = login_message["data"]["auth_token"]
-
-
-    @after_this_request
-    def set_auth_cookie(response):
-        response = make_response(login_message)
-        response.set_cookie('Bearer', auth_token, max_age=64800, httponly=True)
-        return response
-
-    return jsonify(login_message), 200
+    return jsonify({
+        "status": "201",
+        "data": {
+            "username": username,
+            "access_token": create_access_token(identity=username, expires_delta=Config.ACCESS_TOKEN_EXPIRY),
+            "refresh_token": create_refresh_token(identity=username, expires_delta=Config.REFRESH_TOKEN_EXPIRY)
+        },
+        "message": "Successfully Logged In"
+    }), 200
 
 # @app.route("/api/users/<user>/stats", methods=['PUT'])
 
@@ -115,7 +128,26 @@ def update_user_stats(user):
 
     return jsonify(UserStatsForm(user_to_check, updated_stats).update_stats())
 
+
+# Generate New Access Token once Expired
+@app.route("/api/refresh", methods=['POST'])
+@jwt_refresh_token_required
+def refresh():
+    verify_token = verify_jwt_refresh_token_in_request()
+    current_user = get_jwt_identity()
+    ret = {
+        'access_token': create_access_token(identity=current_user)
+    }
+    return jsonify(ret), 200
+
+
+# Get Current User Logged In
+@app.route("/api/users", methods=['GET'])
+@jwt_required
+def protected():
+    username = get_jwt_identity()
+    return jsonify(logged_in_as=username), 200
+
+
 if __name__ == "__main__":
-    app.run(debug=True, port=3000)
-
-
+    app.run(debug=True, port=4000)

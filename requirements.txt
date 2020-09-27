@@ -8,9 +8,10 @@ contextlib2==0.6.0.post1
 dnspython==1.16.0
 enum34==1.1.10
 environs==4.2.0
--e git+https://github.com/JamezGr/Fitness-App-Backend.git@c3b69d4a89fb88356bd07d3554ef3b9041c49e09#egg=fitness_app
+-e git+https://github.com/JamezGr/Fitness-App-Backend.git@fd504d066cde304631a92d4bc56deba3e1b304c5#egg=fitness_app
 Flask==1.1.2
 Flask-Cors==3.0.9
+Flask-JWT-Extended==3.24.1
 funcsigs==1.0.2
 gunicorn==19.10.0
 idna==2.10

@@ -22,13 +22,13 @@ DB_CLUSTER = URI_CLUSTER[Config.DB_CLUSTER_NAME]
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = Config.SECRET_KEY
 
-jwt = JWTManager(app)
-
 CORS(app, resources={
     r"/*": {
         "origins": "*"
     }
 })
+
+jwt = JWTManager(app)
 
 
 @app.route("/")

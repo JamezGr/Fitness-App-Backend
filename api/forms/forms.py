@@ -77,7 +77,7 @@ class RegisterForm(object):
         return True
 
     def check_email_valid(self):
-        email_regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+        email_regex = "(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
         if(re.search(email_regex, self.email)):  
             return True
         

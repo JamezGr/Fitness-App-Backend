@@ -60,3 +60,42 @@ POST /api/login
     "status": "200"
 }
 ```
+## Check Logged In Status:
+```
+GET /api/users
+```
+### Parameters
+|     Name              |      Type      |   Description   |
+| --------------------- | -------------- | ----------------|
+| access_token          | ``` string ``` |  **Required** Access Token to Verify User Logged In      
+
+### Input  
+Authorization: 'Bearer {ACCESS_TOKEN}'
+### Response
+```json
+{
+    "logged_in_as": "TestUser"
+}
+```
+## Create New Access Token:
+```
+POST /api/refresh
+```
+### Parameters
+|     Name              |      Type      |   Description   |
+| --------------------- | -------------- | ----------------|
+| refresh_token         | ``` string ``` |  **Required** Refresh Token Provided on User Login     
+
+### Input  
+```json
+{
+    "refresh_token": {REFRESH_TOKEN}
+}
+```
+### Response
+```json
+{
+    "access_token": {ACCESS_TOKEN}
+}
+```
+

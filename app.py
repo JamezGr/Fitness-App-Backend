@@ -6,7 +6,7 @@ from api.forms.forms import *
 from api.utils import *
 
 from flask import Flask, abort, request, jsonify, after_this_request, make_response, redirect
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
@@ -19,6 +19,7 @@ DB_CLUSTER = URI_CLUSTER[Config.DB_CLUSTER_NAME]
 
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = Config.SECRET_KEY
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 CORS(app, resources={
     r"/*": {
@@ -30,6 +31,7 @@ jwt = JWTManager(app)
 
 
 @app.route("/")
+@cross_origin()
 def default_response():
     return jsonify(ErrorMessage.INVALID_REQUEST), 401
 

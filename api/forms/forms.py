@@ -12,6 +12,9 @@ from api.utils import *
 from api.config import Config, DevelopmentConfig, TestingConfig, ProductionConfig
 from bson.json_util import dumps, loads
 
+from datetime import datetime
+import time
+import calendar
 
 salt = os.urandom(32)
 
@@ -158,7 +161,12 @@ class RegisterForm(object):
         password = self.password
         hashed_password = hash_password(password)
 
-        db_cluster_collection.insert_one({"email": self.email, "user": self.user, "password": hashed_password})
+        db_cluster_collection.insert_one({
+            "email": self.email,
+            "user": self.user,
+            "password": hashed_password,
+            "created": calendar.timegm(time.gmtime())
+        })
 
 
 class LoginForm(object):

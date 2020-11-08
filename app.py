@@ -146,6 +146,13 @@ def protected():
     username = get_jwt_identity()
     return jsonify(logged_in_as=username), 200
 
+# No cacheing at all for API endpoints.
+@app.after_request
+def add_header(response):
+    # response.cache_control.no_store = True
+    if 'Cache-Control' not in response.headers:
+        response.headers['Cache-Control'] = 'no-store'
+    return response
 
 if __name__ == "__main__":
     app.run(debug=True)

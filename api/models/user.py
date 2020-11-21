@@ -10,10 +10,29 @@ class UserStats:
     updatable_fields = {
         "type": "object",
         "properties": {
-            "gender": { "type": "string",
-                        "pattern": "[FM]" },
-            "height": { "type": "number" },
-            "weight": { "type": "number" },
-            "avatar": { "type": "string" }
+            "birthday": {
+                "type": "string",
+                "format": "date"
+            },
+            "gender": {
+                "type": "string",
+                "enum": ["MALE", "FEMALE", "OTHER"]
+            },
+            "unit_measurement": {
+                "type": "string",
+                "enum": ["METRIC", "IMPERIAL"]
+            },
+            "height": { 
+                "type": "number" 
+            },
+            "current_weight": { 
+                "type": "number" 
+            },
+            "goal_weight": { 
+                "type": "number" 
+            },
+            "avatar": { 
+                "type": "string"
+            }
         }
     }

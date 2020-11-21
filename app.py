@@ -1,7 +1,7 @@
 from api.config import Config
 
 from api.response import *
-from api.models.user import User
+from api.models.user import User, UserStats
 from api.forms.forms import *
 from api.utils import *
 
@@ -13,6 +13,8 @@ from flask_jwt_extended import (
     jwt_refresh_token_required, create_refresh_token,
     get_jwt_identity, verify_jwt_refresh_token_in_request
 )
+
+from jsonschema import validate
 
 URI_CLUSTER = Config.DB_CONNECTION_STRING
 DB_CLUSTER = URI_CLUSTER[Config.DB_CLUSTER_NAME]
@@ -90,21 +92,20 @@ def login():
 
 # @app.route("/api/users/<user>/stats", methods=['PUT'])
 
-@app.route("/api/users/<user>/stats", methods=['POST'])
-def create_user_stats(user):
+# @app.route("/api/users/<user>/stats", methods=['POST'])
+# def create_user_stats(user):
 
-    username = request.json.get("username")
-    user_to_check = User(email=None, user=username, password=None, confirm_password=None)
+#     username = request.json.get("username")
+#     user_to_check = User(email=None, user=username, password=None, confirm_password=None)
 
-    if UserStatsForm(user_to_check).get_stats() is not None:
-        return jsonify({"errors": [ErrorMessage.USERS_STATS["STATS_ALREADY_EXIST"]]}), 409
+#     if UserStatsForm(user_to_check).get_stats() is not None:
+#         return jsonify({"errors": [ErrorMessage.USERS_STATS["STATS_ALREADY_EXIST"]]}), 409
 
-    if UserStatsForm(user_to_check).create_stats() is False: 
-        return jsonify({"errors": [ErrorMessage.USERS_STATS]}), 0
+#     if UserStatsForm(user_to_check).create_stats() is False: 
+#         return jsonify({"errors": [ErrorMessage.USERS_STATS]}), 0
 
-    else:
-        return jsonify(SuccessMessage(user_to_check).create_user_stats()), 201
-
+#     else:
+#         return jsonify(SuccessMessage(user_to_check).create_user_stats()), 201
 
 @app.route("/api/users/<user>/stats", methods=['GET'])
 def get_user_stats(user):
@@ -120,13 +121,16 @@ def get_user_stats(user):
     else:
         return UserStatsForm(user_to_check).get_stats()
 
-@app.route("/api/users/<user>/stats", methods=['PUT'])
+
+@app.route("/api/users/<user>/stats", methods=['POST'])
 def update_user_stats(user):
     user_to_check = User(email=None, user=user, password=None, confirm_password=None)
 
     updated_stats = json.dumps(request.json)
 
-    return jsonify(UserStatsForm(user_to_check, updated_stats).update_stats())
+    validate(instance=request.json, schema=UserStats.updatable_fields, format_checker=jsonschema.FormatChecker())
+    # return jsonify(UserStatsForm(user_to_check, updated_stats).update_stats())
+    return updated_stats
 
 
 # Generate New Access Token once Expired

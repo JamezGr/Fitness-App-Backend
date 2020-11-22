@@ -90,47 +90,40 @@ def login():
         "message": "Successfully Logged In"
     }), 200
 
-# @app.route("/api/users/<user>/stats", methods=['PUT'])
-
-# @app.route("/api/users/<user>/stats", methods=['POST'])
-# def create_user_stats(user):
-
-#     username = request.json.get("username")
-#     user_to_check = User(email=None, user=username, password=None, confirm_password=None)
-
-#     if UserStatsForm(user_to_check).get_stats() is not None:
-#         return jsonify({"errors": [ErrorMessage.USERS_STATS["STATS_ALREADY_EXIST"]]}), 409
-
-#     if UserStatsForm(user_to_check).create_stats() is False: 
-#         return jsonify({"errors": [ErrorMessage.USERS_STATS]}), 0
-
-#     else:
-#         return jsonify(SuccessMessage(user_to_check).create_user_stats()), 201
 
 @app.route("/api/users/<user>/stats", methods=['GET'])
+@jwt_required
 def get_user_stats(user):
 
     user_to_check = User(email=None, user=user, password=None, confirm_password=None)
 
-    if decode_auth_token(request.headers["Authorization"]) != user:
-        return jsonify({"errors": [ErrorMessage.FORBIDDEN]}), 403
-
-    if UserStatsForm(user_to_check).get_stats() is None:
+    if UserStatsForm(user).get_stats() is None:
         return jsonify({"errors": [ErrorMessage.USERS_STATS["NO_STATS_AVAILABLE"]]}), 422
 
     else:
-        return UserStatsForm(user_to_check).get_stats()
+        return UserStatsForm(user).get_stats()
 
 
 @app.route("/api/users/<user>/stats", methods=['POST'])
+@jwt_required
 def update_user_stats(user):
     user_to_check = User(email=None, user=user, password=None, confirm_password=None)
 
-    updated_stats = json.dumps(request.json)
+    updated_stats = request.json
 
-    validate(instance=request.json, schema=UserStats.updatable_fields, format_checker=jsonschema.FormatChecker())
-    # return jsonify(UserStatsForm(user_to_check, updated_stats).update_stats())
-    return updated_stats
+    try:
+        validate(instance=request.json, schema=UserStats.updatable_fields, format_checker=jsonschema.FormatChecker())
+
+    except jsonschema.ValidationError as error:
+        return jsonify({"errors": error.message}), 400
+
+    user_stats = UserStatsForm(user, updated_stats).update_stats()
+
+    if user_stats is not None:
+        return jsonify(SuccessMessage(user_to_check).update_user_stats()), 201
+
+    else:
+        return jsonify({"errors": [ErrorMessage.USERS_STATS["INVALID_USER"]]}), 400
 
 
 # Generate New Access Token once Expired

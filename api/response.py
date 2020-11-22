@@ -26,13 +26,13 @@ class SuccessMessage(object):
             "message": "Successfully Registered"
         }
 
-    def create_user_stats(self):
+    def update_user_stats(self):
         return {
             "status": "201",
             "data": {
                 "username": self.username,
             },
-            "message": "Successfully Created Stats."
+            "message": "Successfully Updated Stats."
         }
 
 

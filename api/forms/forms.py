@@ -11,6 +11,7 @@ from api.models.user import UserStats
 from api.utils import *
 from api.config import Config, DevelopmentConfig, TestingConfig, ProductionConfig
 from bson.json_util import dumps, loads
+from bson.objectid import ObjectId
 
 from datetime import datetime
 import time
@@ -200,69 +201,58 @@ class LoginForm(object):
 
 
 class ManageForm(object):
-    def __init__(self, form_data):
-        self.email = form_data.email
-        self.user = form_data.user
+    def __init__(self, user):
+        self.user = user
     
     def delete_user(self): 
         db_cluster_collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["logins"]]
-        user_to_delete = {"email": self.email, "user": self.user}
+        user_to_delete = {"user": self.user}
 
         db_cluster_collection.delete_one(user_to_delete)
 
+    def get_user_id(self): 
+        db_cluster_collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["logins"]]
+        user_to_find = db_cluster_collection.find_one({"user": self.user})
+
+        try:
+            user_id = user_to_find.get('_id')
+            return str(user_id)
+
+        except:
+            return None
 
 class UserStatsForm(object):
-    def __init__(self, form_data, stats = None):
-        self.user = form_data.user
+    def __init__(self, user, stats = None):
+        self.user = user
         self.stats = stats
 
     def get_stats(self):
         db_cluster_collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["user_stats"]]
-        users_found = db_cluster_collection.find({"user": {"$regex": '^' + self.user + '$'}})
 
-        if users_found.count() == 0:
-            return None
+        user_id = ManageForm(self.user).get_user_id()        
+        user_stats = db_cluster_collection.find_one({"user_id": user_id})
 
-        else:
-            user_details = json.loads(dumps(users_found))[0]
-            return user_details
-    
-    def create_stats(self):
-        try:
-            db_cluster_collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["user_stats"]]
-            db_cluster_collection.insert_one({
-                "user": self.user,
-                "gender": None,
-                "date_of_birth": None,
-                "height": None,
-                "weight": None,
-                "avatar": None
-            })
+        return json.loads(dumps(user_stats))
 
-            return True
-        except:
-            return False
 
     def update_stats(self):
-        if self.get_stats() == None:
-            return False
-        
-        print(json.loads(json.dumps(self.stats)))
-
-        try:
-            stats = json.loads(self.stats)
-            jsonschema.validate(stats, UserStats.updatable_fields)
-
-        except jsonschema.exceptions.ValidationError as e:
-            print("Invalid Format", e)
-
-
-        user_to_update = { "user": self.user }
-        stats_to_update = {'$set': json.loads(self.stats)}
-
         db_cluster_collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["user_stats"]]
-        db_cluster_collection.find_one_and_update(user_to_update, stats_to_update)
+        user_stats = self.get_stats()
+        user_id = ManageForm(self.user).get_user_id()
+        
+        self.stats["user_id"] = user_id
+        
+        if user_id is None:
+            return None
 
-        return self.get_stats()
+        if user_stats is None:
+            # db_cluster_collection.insert_one(self.stats)
+            db_cluster_collection.insert_one(self.stats)
+
+        else: 
+            # db_cluster_collection.find_one_and_replace({'user_id': ObjectId(user_id)}, {'$set': self.stats})
+            db_cluster_collection.replace_one({"user_id": user_id}, self.stats)
+
+        return self.stats
 
     # def create_stats(self): 

@@ -6,7 +6,7 @@ class User(object):
         self.confirm_password = confirm_password
 
 
-class UserStats:
+class UserProfile:
     updatable_fields = {
         "type": "object",
         "properties": {

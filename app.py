@@ -1,7 +1,7 @@
 from api.config import Config
 
 from api.response import *
-from api.models.user import User, UserStats
+from api.models.user import User, UserProfile
 from api.forms.forms import *
 from api.utils import *
 
@@ -91,39 +91,39 @@ def login():
     }), 200
 
 
-@app.route("/api/users/<user>/stats", methods=['GET'])
+@app.route("/api/users/<user>/profile", methods=['GET'])
 @jwt_required
-def get_user_stats(user):
+def get_user_profile(user):
 
     user_to_check = User(email=None, user=user, password=None, confirm_password=None)
 
-    if UserStatsForm(user).get_stats() is None:
-        return jsonify({"errors": [ErrorMessage.USERS_STATS["NO_STATS_AVAILABLE"]]}), 422
+    if UserProfileForm(user).get_profile() is None:
+        return jsonify({"errors": [ErrorMessage.USER_PROFILE["NO_PROFILE_AVAILABLE"]]}), 422
 
     else:
-        return UserStatsForm(user).get_stats()
+        return UserProfileForm(user).get_profile()
 
 
-@app.route("/api/users/<user>/stats", methods=['POST'])
+@app.route("/api/users/<user>/profile", methods=['POST'])
 @jwt_required
-def update_user_stats(user):
+def update_user_profile(user):
     user_to_check = User(email=None, user=user, password=None, confirm_password=None)
 
-    updated_stats = request.json
+    updated_profile = request.json
 
     try:
-        validate(instance=request.json, schema=UserStats.updatable_fields, format_checker=jsonschema.FormatChecker())
+        validate(instance=request.json, schema=UserProfile.updatable_fields, format_checker=jsonschema.FormatChecker())
 
     except jsonschema.ValidationError as error:
         return jsonify({"errors": error.message}), 400
 
-    user_stats = UserStatsForm(user, updated_stats).update_stats()
+    user_profile = UserProfileForm(user, updated_profile).update_profile()
 
-    if user_stats is not None:
-        return jsonify(SuccessMessage(user_to_check).update_user_stats()), 201
+    if user_profile is not None:
+        return jsonify(SuccessMessage(user_to_check).update_profile()), 201
 
     else:
-        return jsonify({"errors": [ErrorMessage.USERS_STATS["INVALID_USER"]]}), 400
+        return jsonify({"errors": [ErrorMessage.USER_PROFILE["INVALID_USER"]]}), 400
 
 
 # Generate New Access Token once Expired

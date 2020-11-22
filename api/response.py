@@ -26,13 +26,13 @@ class SuccessMessage(object):
             "message": "Successfully Registered"
         }
 
-    def update_user_stats(self):
+    def update_profile(self):
         return {
             "status": "201",
             "data": {
                 "username": self.username,
             },
-            "message": "Successfully Updated Stats."
+            "message": "Successfully Updated User Profile."
         }
 
 
@@ -86,24 +86,24 @@ class ErrorMessage:
         }
     }
 
-    USERS_STATS = {
+    USER_PROFILE = {
         "INVALID_USER": {
             "status": "400",
-            "source": {"pointer": "/api/users/<user>/stats"},
+            "source": {"pointer": "/api/users/<user>/profile"},
             "title": "Invalid User.",
-            "detail": "Unable to create Stats for User that does not exist."
+            "detail": "Unable to create Profile for User that does not exist."
         },
-        "NO_STATS_AVAILABLE": { 
+        "NO_PROFILE_AVAILABLE": { 
             "status": "422",
-            "source": {"pointer": "/api/users/<user>/stats"},
-            "title": "No Stats Available.",
-            "detail": "No Stats Available for Requested Username."
+            "source": {"pointer": "/api/users/<user>/profile"},
+            "title": "No Profile Available.",
+            "detail": "No Profile Available for Requested Username."
         },
-        "STATS_ALREADY_EXIST": {
+        "PROFILE_ALREADY_EXISTS": {
             "status": "409",
-            "source": {"pointer": "/api/users/<user>/stats"},
-            "title": "Stats already Exist.",
-            "detail": "Stats already Exist for Requested User."
+            "source": {"pointer": "/api/users/<user>/profile"},
+            "title": "Profile already Exists.",
+            "detail": "Profile already Exists for Requested User."
         }
     }
 

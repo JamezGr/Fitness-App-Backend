@@ -7,7 +7,7 @@ import jsonschema
 
 from flask import jsonify
 from jsonschema import validate
-from api.models.user import UserStats
+from api.models.user import UserProfile
 from api.utils import *
 from api.config import Config, DevelopmentConfig, TestingConfig, ProductionConfig
 from bson.json_util import dumps, loads
@@ -221,12 +221,12 @@ class ManageForm(object):
         except:
             return None
 
-class UserStatsForm(object):
+class UserProfileForm(object):
     def __init__(self, user, stats = None):
         self.user = user
         self.stats = stats
 
-    def get_stats(self):
+    def get_profile(self):
         db_cluster_collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["user_stats"]]
 
         user_id = ManageForm(self.user).get_user_id()        
@@ -235,9 +235,9 @@ class UserStatsForm(object):
         return json.loads(dumps(user_stats))
 
 
-    def update_stats(self):
+    def update_profile(self):
         db_cluster_collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["user_stats"]]
-        user_stats = self.get_stats()
+        user_stats = self.get_profile()
         user_id = ManageForm(self.user).get_user_id()
         
         self.stats["user_id"] = user_id

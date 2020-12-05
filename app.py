@@ -8,6 +8,7 @@ from api.utils import *
 from flask import Flask, abort, request, jsonify, after_this_request, make_response, redirect
 from flask_cors import CORS, cross_origin
 
+from bson.json_util import dumps
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
     jwt_refresh_token_required, create_refresh_token,
@@ -15,6 +16,8 @@ from flask_jwt_extended import (
 )
 
 from jsonschema import validate
+from flask_pymongo import PyMongo
+from bson.binary import Binary
 
 URI_CLUSTER = Config.DB_CONNECTION_STRING
 DB_CLUSTER = URI_CLUSTER[Config.DB_CLUSTER_NAME]
@@ -30,7 +33,7 @@ CORS(app, resources={
 })
 
 jwt = JWTManager(app)
-
+mongo = PyMongo(app=app, uri=Config.DB_CONNECTION_URI)
 
 @app.route("/")
 @cross_origin()
@@ -103,23 +106,43 @@ def get_user_profile(user):
     else:
         return UserProfileForm(user).get_profile()
 
+@app.route("/uploads/<path:filename>")
+def get_upload(filename):
+    return mongo.send_file(filename)
 
 @app.route("/api/users/<user>/profile", methods=['POST'])
 @jwt_required
-def update_user_profile(user):
+def update_user_profile(user):    
     user_to_check = User(email=None, user=user, password=None, confirm_password=None)
+    updated_profile = {}
 
-    updated_profile = request.json
+    # TODO: Find Better Way to Convert Form Data to JSON 
+    if "avatar" in request.files:
+        avatar_image = request.files["avatar"]
+        updated_profile["avatar"] = avatar_image.filename;
+
+    form_data = request.form
+
+    for key in form_data.keys():
+        updated_value = form_data[key]
+        is_numeric = updated_value.isnumeric()
+
+        if is_numeric:
+            updated_profile[key] = int(updated_value)
+
+        else:
+            updated_profile[key] = str(updated_value)
 
     try:
-        validate(instance=request.json, schema=UserProfile.updatable_fields, format_checker=jsonschema.FormatChecker())
+        validate(instance=updated_profile, schema=UserProfile.updatable_fields, format_checker=jsonschema.FormatChecker())
 
     except jsonschema.ValidationError as error:
         return jsonify({"errors": error.message}), 400
-
+    
     user_profile = UserProfileForm(user, updated_profile).update_profile()
 
     if user_profile is not None:
+        mongo.save_file(avatar_image.filename, avatar_image)
         return jsonify(SuccessMessage(user_to_check).update_profile()), 201
 
     else:

@@ -30,9 +30,6 @@ class UserProfile:
             },
             "goal_weight": { 
                 "type": "number" 
-            },
-            "avatar": { 
-                "type": "string"
             }
         }
     }

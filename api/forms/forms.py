@@ -5,7 +5,7 @@ import re
 import jsonschema
 
 
-from flask import jsonify
+from flask import jsonify, url_for
 from jsonschema import validate
 from api.models.user import UserProfile
 from api.utils import *
@@ -241,6 +241,9 @@ class UserProfileForm(object):
         user_id = ManageForm(self.user).get_user_id()
         
         self.stats["user_id"] = user_id
+
+        print(self.user)
+        print(self.stats)
         
         if user_id is None:
             return None

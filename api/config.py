@@ -13,6 +13,7 @@ class Config:
     DB_CLUSTER_NAME = env("DB_CLUSTER_NAME")
     DB_URI = env("DB_URI")
 
+    DB_CONNECTION_URI = "mongodb+srv://" + DB_USERNAME + ":" + DB_PASSWORD + "@" + DB_URI
     DB_CONNECTION_STRING = pymongo.MongoClient("mongodb+srv://" + DB_USERNAME + ":" + DB_PASSWORD + "@" + DB_URI)
     DB_CLUSTER = DB_CONNECTION_STRING[DB_CLUSTER_NAME]
 

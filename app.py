@@ -26,14 +26,15 @@ app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = Config.SECRET_KEY
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+jwt = JWTManager(app)
+mongo = PyMongo(app=app, uri=Config.DB_CONNECTION_URI)
+
 CORS(app, resources={
     r"/*": {
         "origins": "*"
     }
 })
 
-jwt = JWTManager(app)
-mongo = PyMongo(app=app, uri=Config.DB_CONNECTION_URI)
 
 @app.route("/")
 @cross_origin()
@@ -171,10 +172,9 @@ def protected():
 # No cacheing at all for API endpoints.
 @app.after_request
 def add_header(response):
-    # response.cache_control.no_store = True
-    if 'Cache-Control' not in response.headers:
-        response.headers['Cache-Control'] = 'no-store'
+    header = response.headers
+    header['Access-Control-Allow-Origin'] = '*'
     return response
-
+    
 if __name__ == "__main__":
     app.run(debug=True)

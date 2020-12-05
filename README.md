@@ -33,12 +33,14 @@ $ python app.py
 See API Docs api/README for usage
 
 ## Test
-Activate your virtualenv (see Installation).
+Unit Tests are located in ./test in Project Root as test_*.py files.
+To Run Individual Tests:
 ```
-$ cd test
+$ python test_*.py
 ```
-Example Usage:
+To Run All Tests, go to ./scripts in Project Root.
 ```
-$ python login_test.py
+$ chmod +x run_tests.sh
+$ ./run_tests.sh
 ```
 

@@ -3,6 +3,7 @@ from api.config import Config
 from api.response import *
 from api.models.user import User, UserProfile
 from api.forms.forms import *
+from api.forms.register_user import RegisterForm
 from api.utils import *
 
 from flask import Flask, abort, request, jsonify, after_this_request, make_response, redirect

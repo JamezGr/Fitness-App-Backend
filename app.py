@@ -5,6 +5,7 @@ from api.models.user import User, UserProfile
 from api.forms.forms import *
 from api.forms.register_user import RegisterForm
 from api.forms.login_user import LoginForm
+from api.forms.schedule_activities import ScheduleActivities
 from api.utils import *
 
 from flask import Flask, abort, request, jsonify, after_this_request, make_response, redirect
@@ -170,6 +171,21 @@ def refresh():
 def protected():
     username = get_jwt_identity()
     return jsonify(logged_in_as=username), 200
+
+
+@app.route("/api/schedule", methods=['POST'])
+# @jwt_required
+def update_user_schedule():
+    schedule_data = request.json
+
+    scheduled_activity = ScheduleActivities(schedule_data)
+    print(scheduled_activity.update_scheduled_data())
+
+    return jsonify({
+        "status": "201",
+        "message": "Successfully Updated Schedule"
+    }), 200
+
 
 # No cacheing at all for API endpoints.
 @app.after_request

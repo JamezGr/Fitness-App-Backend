@@ -19,7 +19,8 @@ class Config:
 
     COLLECTION_NAMES = {
         "logins": "logins",
-        "user_stats": "user_stats"
+        "user_stats": "user_stats",
+        "user_schedule": "user_schedule"
     }
 
     SECRET_KEY = b"uP0tGp(.d:J:Uo}<AoeK|6r`XJ-*S0"

@@ -23,7 +23,7 @@ class Schedule:
             "additionalProperties": False,
             "properties": {
                 "details": {
-                    "type": "object"
+                    "type": "array"
                 },
                 "start_time": {
                     "type": "string",

@@ -1,11 +1,13 @@
 from api.models.schedule import Schedule
+from api.config import Config, DevelopmentConfig, TestingConfig, ProductionConfig
 import jsonschema
+import datetime
 
 class ScheduleActivities(object):
     def __init__(self, activity_data):
         self.activity_data = activity_data
         self.errors = []
-
+        self.db_cluster_collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["user_schedule"]]
 
     def validate_schedule_format(self, schedule_data):
         try:
@@ -13,7 +15,7 @@ class ScheduleActivities(object):
             return True
         
         except jsonschema.ValidationError as error:
-            # print(error.message)
+            print("line 17", error.message)
             self.errors.append(error.message)
             return False
 
@@ -26,20 +28,19 @@ class ScheduleActivities(object):
             return True
 
         except jsonschema.ValidationError as error:
-            # print(error.message)
             self.errors.append(error.message)
             return False
 
 
     def validate_activity_details(self, activity_details, activity_name):
         try:
-            activity_schema = Schedule.activities["details"][activity_name]
-            jsonschema.validate(instance=activity_details, schema=activity_schema, format_checker=jsonschema.FormatChecker())
+            for detail in activity_details:
+                activity_schema = Schedule.activities["details"][activity_name]
+                jsonschema.validate(instance=detail, schema=activity_schema, format_checker=jsonschema.FormatChecker())
 
-            return True
+                return True
 
         except jsonschema.ValidationError as error:
-            # print(error.message)
             self.errors.append(error.message)
             return False
 
@@ -60,6 +61,16 @@ class ScheduleActivities(object):
             return False
 
         else:
+            datetime_object = datetime.datetime.strptime(self.activity_data["date"], "%Y-%m-%d")
+            self.activity_data["date"] = datetime_object
+
+            self.db_cluster_collection.find_one_and_replace(
+                {"date": self.activity_data["date"]},
+                self.activity_data,
+                projection=None,
+                upsert=True
+            )
+
             return True
 
     def get_scheduled_data():

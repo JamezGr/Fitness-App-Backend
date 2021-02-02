@@ -9,7 +9,8 @@ class Schedule:
                 "type": "string"
             },
             "date": {
-                "type": "number"
+                "type": "string",
+                "format": "date"
             }
         },
         "required": ["activities", "user_id", "date"]
@@ -19,15 +20,18 @@ class Schedule:
     activities = {
         "data": {
             "type": "object",
+            "additionalProperties": False,
             "properties": {
                 "details": {
                     "type": "object"
                 },
                 "start_time": {
-                    "type": "number"
+                    "type": "string",
+                    "pattern": "^([01]?[0-9]|2[0-3]):[0-5][0-9]$"
                 },
                 "end_time": {
-                    "type": "number"
+                    "type": "string",
+                    "pattern": "^([01]?[0-9]|2[0-3]):[0-5][0-9]$"
                 },
                 "name": {
                     "type": "string"
@@ -71,7 +75,8 @@ class Schedule:
                         "minimum": 0.1
                     },
                     "GOAL_TIME": {
-                        "type": "string"
+                        "type": "string",
+                        "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
                     }
                 },
                 "required": ["INTENSITY", "DISTANCE", "GOAL_TIME"]
@@ -87,7 +92,8 @@ class Schedule:
                         "minimum": 0.1
                     },
                     "GOAL_TIME": {
-                        "type": "string"
+                        "type": "string",
+                        "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
                     }
                 },
                 "required": ["INTENSITY", "DISTANCE", "GOAL_TIME"]
@@ -106,7 +112,8 @@ class Schedule:
                         "minimum": 0.1
                     },
                     "GOAL_TIME": {
-                        "type": "string"
+                        "type": "string",
+                        "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
                     }
                 },
                 "required": ["INTENSITY", "STROKE", "DISTANCE", "GOAL_TIME"]

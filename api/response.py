@@ -35,6 +35,13 @@ class SuccessMessage(object):
             "message": "Successfully Updated User Profile."
         }
 
+    SCHEDULE = {
+        "UPDATED": {
+            "status": "201",
+            "message": "Successfully Updated Schedule"
+        }
+    }
+
 
 class ErrorMessage:
     LOGIN = {
@@ -104,6 +111,15 @@ class ErrorMessage:
             "source": {"pointer": "/api/users/<user>/profile"},
             "title": "Profile already Exists.",
             "detail": "Profile already Exists for Requested User."
+        }
+    }
+
+    SCHEDULE = {
+        "INVALID": {
+            "status": "400",
+            "source": {"pointer": "/api/schedule"},
+            "title": "Invalid Schedule",
+            "detail": "Schedule contains invalid Data"
         }
     }
 

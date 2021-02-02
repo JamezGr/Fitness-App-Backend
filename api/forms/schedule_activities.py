@@ -59,10 +59,12 @@ class ScheduleActivities(object):
 
 
         if len(self.errors):
-            return False
+            return {
+                "success": False,
+                "errors": self.errors
+            }
 
         else:
-            # datetime_object = datetime.datetime.strptime(self.activity_data["date"], "%Y-%m-%d")
             self.activity_data["date"] = date_time.convert_datetime_string_to_datetime_object(self.activity_data["date"])
 
             self.db_cluster_collection.find_one_and_replace(
@@ -72,7 +74,10 @@ class ScheduleActivities(object):
                 upsert=True
             )
 
-            return True
+            return {
+                "success": True,
+                "errors": self.errors
+            }
 
     def get_scheduled_data():
         print("fetched")

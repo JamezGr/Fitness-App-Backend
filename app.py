@@ -179,12 +179,16 @@ def update_user_schedule():
     schedule_data = request.json
 
     scheduled_activity = ScheduleActivities(schedule_data)
-    print(scheduled_activity.update_scheduled_data())
+    update_scheduled_data = scheduled_activity.update_scheduled_data()
 
-    return jsonify({
-        "status": "201",
-        "message": "Successfully Updated Schedule"
-    }), 200
+    if update_scheduled_data["success"]:
+        return jsonify(SuccessMessage.SCHEDULE["UPDATED"]), 201
+    
+    else:
+        error_message = ErrorMessage.SCHEDULE["INVALID"]
+        error_message["errors"] = update_scheduled_data["errors"]
+
+        return jsonify(error_message, 400)
 
 
 # No cacheing at all for API endpoints.

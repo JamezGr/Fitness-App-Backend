@@ -4,6 +4,7 @@ import jsonschema
 class ScheduleActivities(object):
     def __init__(self, activity_data):
         self.activity_data = activity_data
+        self.errors = []
 
 
     def validate_schedule_format(self, schedule_data):
@@ -12,8 +13,9 @@ class ScheduleActivities(object):
             return True
         
         except jsonschema.ValidationError as error:
-            print(error.message)
-            return error.message
+            # print(error.message)
+            self.errors.append(error.message)
+            return False
 
 
     def validate_activity_format(self, activity_data): 
@@ -24,8 +26,9 @@ class ScheduleActivities(object):
             return True
 
         except jsonschema.ValidationError as error:
-            print(error.message)
-            return error.message
+            # print(error.message)
+            self.errors.append(error.message)
+            return False
 
 
     def validate_activity_details(self, activity_details, activity_name):
@@ -36,8 +39,9 @@ class ScheduleActivities(object):
             return True
 
         except jsonschema.ValidationError as error:
-            print(error.message)
-            return error.message 
+            # print(error.message)
+            self.errors.append(error.message)
+            return False
 
 
     def update_scheduled_data(self):
@@ -51,7 +55,12 @@ class ScheduleActivities(object):
             activity_format_valid = self.validate_activity_format(activity)
             activity_details_valid = self.validate_activity_details(activity_details, activity_name)
 
-        return schedule_valid
+
+        if len(self.errors):
+            return False
+
+        else:
+            return True
 
     def get_scheduled_data():
         print("fetched")

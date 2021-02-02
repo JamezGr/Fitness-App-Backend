@@ -1,7 +1,7 @@
 import json
 
 from api.config import Config, DevelopmentConfig, TestingConfig, ProductionConfig
-from api.utils import *
+from api.utils import user_auth
 
 from bson.json_util import dumps, loads
 
@@ -29,7 +29,7 @@ class LoginForm(object):
             users_found = db_cluster_collection.find({"user": {"$regex": '^' + self.user + '$'}})
             user_details = json.loads(dumps(users_found))[0]
 
-            return verify_password(user_details["password"], password)
+            return user_auth.verify_password(user_details["password"], password)
 
         except IndexError:
             return False

@@ -1,4 +1,4 @@
-from api.utils import encode_auth_token
+from api.utils import user_auth
 
 
 class SuccessMessage(object):
@@ -11,7 +11,7 @@ class SuccessMessage(object):
                 "status": "200",
                 "data": {
                     "username": self.username,
-                    "auth_token": encode_auth_token(self.username).decode('utf-8')
+                    "auth_token": user_auth.encode_auth_token(self.username).decode('utf-8')
                 },
                 "message": "Successfully Logged In"
         }

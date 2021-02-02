@@ -1,5 +1,6 @@
 from api.models.schedule import Schedule
 from api.config import Config, DevelopmentConfig, TestingConfig, ProductionConfig
+from api.utils import date_time
 import jsonschema
 import datetime
 
@@ -61,8 +62,8 @@ class ScheduleActivities(object):
             return False
 
         else:
-            datetime_object = datetime.datetime.strptime(self.activity_data["date"], "%Y-%m-%d")
-            self.activity_data["date"] = datetime_object
+            # datetime_object = datetime.datetime.strptime(self.activity_data["date"], "%Y-%m-%d")
+            self.activity_data["date"] = date_time.convert_datetime_string_to_datetime_object(self.activity_data["date"])
 
             self.db_cluster_collection.find_one_and_replace(
                 {"date": self.activity_data["date"]},

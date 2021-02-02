@@ -5,7 +5,7 @@ import calendar
 from datetime import datetime
 
 from api.config import Config, DevelopmentConfig, TestingConfig, ProductionConfig
-from api.utils import *
+from api.utils import user_auth
 
 class RegisterForm(object):
 
@@ -147,7 +147,7 @@ class RegisterForm(object):
         db_cluster_collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["logins"]]
 
         password = self.password
-        hashed_password = hash_password(password)
+        hashed_password = user_auth.hash_password(password)
 
         db_cluster_collection.insert_one({
             "email": self.email,

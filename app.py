@@ -11,6 +11,9 @@ from api.utils import *
 from flask import Flask, abort, request, jsonify, after_this_request, make_response, redirect
 from flask_cors import CORS, cross_origin
 
+from webargs import fields
+from webargs.flaskparser import use_args
+
 from bson.json_util import dumps
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
@@ -189,6 +192,27 @@ def update_user_schedule():
         error_message["errors"] = update_scheduled_data["errors"]
 
         return jsonify(error_message, 400)
+
+
+@app.route("/api/schedule", methods=['GET'])
+@use_args({
+    "user_id": fields.Str(required=True),
+    "start_date": fields.Str(missing=None),
+    "end_date": fields.Str(missing=None),
+    "returnDetails": fields.Bool(missing=True),
+    "returnIdsOnly": fields.Bool(missing=False),
+    "returnSummary": fields.Bool(missing=False)
+    })
+def get_scheduled_activities(args):
+    request_params = args
+    schedule_data = {
+        "request_params": request_params 
+    }
+
+    schedule_activities = ScheduleActivities(schedule_data)
+    fetched_schedule_data = schedule_activities.get_scheduled_data()
+
+    return fetched_schedule_data
 
 
 # No cacheing at all for API endpoints.

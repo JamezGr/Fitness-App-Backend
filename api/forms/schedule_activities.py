@@ -131,10 +131,10 @@ class ScheduleActivities(object):
             }
 
         else:
-            self.activity_data["date"] = date_time.convert_datetime_str_to_obj(self.activity_data["date"])
+            date = date_time.convert_datetime_str_to_obj(self.activity_data["date"])
 
             self.db_cluster_collection.find_one_and_replace(
-                {"date": self.activity_data["date"]},
+                {"date": date},
                 self.activity_data,
                 projection=None,
                 upsert=True
@@ -145,6 +145,45 @@ class ScheduleActivities(object):
                 "errors": self.errors
             }
     
+    ## determine format to display data ie. idsOnly, summary
+    def parse_schedule_data(self, schedule_data):
+        request_params = self.activity_data["request_params"]
+
+        if request_params["returnIdsOnly"] is True:
+            return self.get_schedule_activity_ids(schedule_data)
+
+        elif request_params["returnSummary"] is True:
+            return self.get_schedule_activity_summary(schedule_data)
+
+        elif request_params["returnDetails"] is False:
+            return []
+
+        else:
+            return schedule_data
+
+    ## return list of activity ids
+    def get_schedule_activity_ids(self, schedule_data): 
+        return list(map((lambda activity: activity["_id"]["$oid"]), schedule_data))
+
+
+    def get_schedule_activity_summary(self, schedule_data):
+        activity_summary = []
+
+        for data in schedule_data:
+            activities = data["activities"]
+            activities_date = data["date"]["$date"] 
+
+            for activity in activities:
+                # print(activity["name"], activity["start_time"], activity["end_time"])
+                activity_summary.append({
+                    "name": activity["name"],
+                    "start_time": activity["start_time"],
+                    "end_time": activity["end_time"],
+                    "date": activities_date
+                })
+
+        return activity_summary
+
 
     def get_scheduled_data(self):
         errors = self.errors
@@ -179,9 +218,10 @@ class ScheduleActivities(object):
             ]})
 
             schedule_data_json = json.loads(dumps(schedule_data))
+            data = self.parse_schedule_data(schedule_data_json)
 
             return {
                 "success": True,
-                "data": schedule_data_json,
+                "data": data,
                 "errors": errors,
             }

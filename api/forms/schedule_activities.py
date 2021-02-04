@@ -11,6 +11,8 @@ import json
 class ScheduleActivities(object):
     def __init__(self, activity_data):
         self.activity_data = activity_data
+        self.request_params = activity_data["request_params"] if activity_data["request_params"] else None
+
         self.errors = []
         self.db_cluster_collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["user_schedule"]]
 
@@ -51,8 +53,7 @@ class ScheduleActivities(object):
 
     def validate_request_params(self):
         try: 
-            request_params = self.activity_data["request_params"]
-            jsonschema.validate(instance=request_params, schema=UrlParams.schedule, format_checker=jsonschema.FormatChecker())
+            jsonschema.validate(instance=self.request_params, schema=UrlParams.schedule, format_checker=jsonschema.FormatChecker())
 
         except jsonschema.ValidationError as error:
             self.errors.append(error.message)
@@ -144,58 +145,34 @@ class ScheduleActivities(object):
                 "success": True,
                 "errors": self.errors
             }
-    
-    ## determine format to display data ie. idsOnly, summary
-    def parse_schedule_data(self, schedule_data):
-        request_params = self.activity_data["request_params"]
-
-        if request_params["returnIdsOnly"] is True:
-            return self.get_schedule_activity_ids(schedule_data)
-
-        elif request_params["returnSummary"] is True:
-            return self.get_schedule_activity_summary(schedule_data)
-
-        elif request_params["returnDetails"] is False:
-            return []
-
-        else:
-            return schedule_data
-
-    ## return list of activity ids
-    def get_schedule_activity_ids(self, schedule_data): 
-        return list(map((lambda activity: activity["_id"]["$oid"]), schedule_data))
 
 
-    def get_schedule_activity_summary(self, schedule_data):
-        activity_summary = []
+    def get_surpressed_fields(self):
+        surpressed_fields = {}
+        surpressed_fields["user_id"] = 0
 
-        for data in schedule_data:
-            activities = data["activities"]
-            activities_date = data["date"]["$date"] 
+        if self.request_params["returnIdsOnly"] is True:
+            surpressed_fields["_id"] = 1
+            surpressed_fields["activities"] = 0
+            return surpressed_fields
 
-            for activity in activities:
-                # print(activity["name"], activity["start_time"], activity["end_time"])
-                activity_summary.append({
-                    "name": activity["name"],
-                    "start_time": activity["start_time"],
-                    "end_time": activity["end_time"],
-                    "date": activities_date
-                })
+        if self.request_params["returnSummary"] is True:
+            surpressed_fields["activities.details"] = 0
+            return surpressed_fields
 
-        return activity_summary
+        return surpressed_fields
 
 
     def get_scheduled_data(self):
         errors = self.errors
 
-        request_params = self.activity_data["request_params"]
         request_dates = self.set_request_dates({
-            "start_date": request_params["start_date"],
-            "end_date": request_params["end_date"]
+            "start_date": self.request_params["start_date"],
+            "end_date": self.request_params["end_date"]
         })
 
-        request_params["start_date"] = request_dates["start_date"]
-        request_params["end_date"] = request_dates["end_date"]
+        self.request_params["start_date"] = request_dates["start_date"]
+        self.request_params["end_date"] = request_dates["end_date"]
 
         valid_request_dates = self.validate_request_dates()
         valid_request_params = self.validate_request_params()
@@ -207,18 +184,17 @@ class ScheduleActivities(object):
             }
 
         else:
-            request_params = self.activity_data["request_params"]
-            
+            surpressed_fields = self.get_surpressed_fields()
+
             schedule_data = self.db_cluster_collection.find({"$and": [
                 {"date": {
-                    "$gte": date_time.convert_datetime_str_to_obj(request_params["start_date"]),
-                    "$lt": date_time.convert_datetime_str_to_obj(request_params["end_date"])
+                    "$gte": date_time.convert_datetime_str_to_obj(self.request_params["start_date"]),
+                    "$lt": date_time.convert_datetime_str_to_obj(self.request_params["end_date"])
                 }},
-                {"user_id": request_params["user_id"]}
-            ]})
+                {"user_id": self.request_params["user_id"]}
+            ]}, surpressed_fields)
 
-            schedule_data_json = json.loads(dumps(schedule_data))
-            data = self.parse_schedule_data(schedule_data_json)
+            data = json.loads(dumps(schedule_data))
 
             return {
                 "success": True,

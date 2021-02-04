@@ -1,8 +1,9 @@
 from api.models.schedule import Schedule
 from api.models.url_params import UrlParams
 from api.config import Config, DevelopmentConfig, TestingConfig, ProductionConfig
-from api.utils import date_time
+from api.utils import date_time, query
 from bson.json_util import dumps, loads
+from bson.objectid import ObjectId
 
 import jsonschema
 import datetime
@@ -11,7 +12,7 @@ import json
 class ScheduleActivities(object):
     def __init__(self, activity_data):
         self.activity_data = activity_data
-        self.request_params = activity_data["request_params"] if activity_data["request_params"] else None
+        self.request_params = activity_data.get("request_params", None)
 
         self.errors = []
         self.db_cluster_collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["user_schedule"]]
@@ -71,13 +72,13 @@ class ScheduleActivities(object):
 
 
             if start_date_obj is None and start_date is not None:
-                self.errors.append("invalid start_date")
+                self.errors.append("Invalid start_date {date}".format(date=start_date))
 
             if end_date_obj is None and end_date is not None:
-                self.errors.append("invalid end_date")
+                self.errors.append("Invalid end_date {date}".format(date=end_date))
 
             if start_date > end_date:
-                self.errors.append("start date is after end date")
+                self.errors.append("start_date {start} is after end_date {end}".format(start=start_date, end=end_date))
 
         except:
             return False 
@@ -143,7 +144,6 @@ class ScheduleActivities(object):
 
             return {
                 "success": True,
-                "errors": self.errors
             }
 
 
@@ -164,12 +164,12 @@ class ScheduleActivities(object):
 
 
     def get_scheduled_data(self):
-        errors = self.errors
-
         request_dates = self.set_request_dates({
             "start_date": self.request_params["start_date"],
             "end_date": self.request_params["end_date"]
         })
+
+        activity_id = self.request_params["activity_id"]
 
         self.request_params["start_date"] = request_dates["start_date"]
         self.request_params["end_date"] = request_dates["end_date"]
@@ -177,27 +177,38 @@ class ScheduleActivities(object):
         valid_request_dates = self.validate_request_dates()
         valid_request_params = self.validate_request_params()
 
-        if len(errors):
+        if len(activity_id) and query.object_id_is_valid(activity_id) is False:
+            self.errors.append("Invalid Activity ID type {activity_id}".format(activity_id=activity_id))
+
+        if len(self.errors):
             return {
                 "success": False,
-                "errors": errors
+                "errors": self.errors
             }
 
         else:
             surpressed_fields = self.get_surpressed_fields()
 
-            schedule_data = self.db_cluster_collection.find({"$and": [
-                {"date": {
-                    "$gte": date_time.convert_datetime_str_to_obj(self.request_params["start_date"]),
-                    "$lt": date_time.convert_datetime_str_to_obj(self.request_params["end_date"])
-                }},
-                {"user_id": self.request_params["user_id"]}
-            ]}, surpressed_fields)
+            if len(activity_id):
+                schedule_data = self.db_cluster_collection.find_one(
+                    {
+                        "_id": ObjectId(activity_id),
+                        "user_id": self.request_params["user_id"]
+                    }, surpressed_fields
+                )
+            
+            else:
+                schedule_data = self.db_cluster_collection.find({"$and": [
+                    {"date": {
+                        "$gte": date_time.convert_datetime_str_to_obj(self.request_params["start_date"]),
+                        "$lte": date_time.convert_datetime_str_to_obj(self.request_params["end_date"])
+                    }, 
+                    "user_id": self.request_params["user_id"]},
+                ]}, surpressed_fields)
 
             data = json.loads(dumps(schedule_data))
 
             return {
                 "success": True,
-                "data": data,
-                "errors": errors,
+                "data": data
             }

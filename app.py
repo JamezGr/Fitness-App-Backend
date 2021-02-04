@@ -197,6 +197,7 @@ def update_user_schedule():
 @app.route("/api/schedule", methods=['GET'])
 @use_args({
     "user_id": fields.Str(required=True),
+    "activity_id": fields.Str(missing=""),
     "start_date": fields.Str(missing=None),
     "end_date": fields.Str(missing=None),
     "returnDetails": fields.Bool(missing=True),

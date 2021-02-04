@@ -5,6 +5,9 @@ class UrlParams:
             "user_id": {
                 "type": "string"
             },
+            "activity_id": {
+                "type": "string"
+            },
             "start_date": {
                 "type": "string",
                 "format": "date"

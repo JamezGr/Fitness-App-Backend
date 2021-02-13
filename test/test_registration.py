@@ -2,6 +2,7 @@ import unittest
 import pytest
 
 from api.forms.forms import *
+from api.forms.register_user import RegisterForm
 from api.models.user import User
 
 """Valid Credentials For Testing """

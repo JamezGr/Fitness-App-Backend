@@ -41,6 +41,8 @@ CORS(app, resources={
     }
 })
 
+current_date_time_obj = date_time.get_current_datetime()
+current_date_time_str = date_time.convert_datetime_obj_to_str(current_date_time_obj)
 
 @app.route("/")
 @cross_origin()
@@ -198,8 +200,8 @@ def update_user_schedule():
 @use_args({
     "user_id": fields.Str(required=True),
     "activity_id": fields.Str(missing=""),
-    "start_date": fields.Str(missing=None),
-    "end_date": fields.Str(missing=None),
+    "start_date": fields.Str(missing=current_date_time_str),
+    "end_date": fields.Str(missing=""),
     "returnDetails": fields.Bool(missing=True),
     "returnIdsOnly": fields.Bool(missing=False),
     "returnSummary": fields.Bool(missing=False)

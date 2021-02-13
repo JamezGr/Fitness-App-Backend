@@ -1,7 +1,7 @@
 from api.models.schedule import Schedule
 from api.models.url_params import UrlParams
 from api.config import Config, DevelopmentConfig, TestingConfig, ProductionConfig
-from api.utils import date_time, query
+from api.utils import date_time, query, schedule, response
 from bson.json_util import dumps, loads
 from bson.objectid import ObjectId
 
@@ -63,13 +63,17 @@ class ScheduleActivities(object):
 
     def validate_request_dates(self):
         try:
-            schedule_activities = self.activity_data["request_params"]
-            start_date = schedule_activities["start_date"]
-            end_date = schedule_activities["end_date"]
+            request_params = self.activity_data["request_params"]
+            start_date = request_params["start_date"]
+            end_date = request_params["end_date"]
+            activity_id = request_params["activity_id"]
 
             start_date_obj = date_time.convert_datetime_str_to_obj(start_date)
             end_date_obj = date_time.convert_datetime_str_to_obj(end_date)
 
+            ## no date needed if only activity id is specified 
+            if start_date_obj is None and end_date_obj is None and activity_id is not None:
+                return True
 
             if start_date_obj is None and start_date is not None:
                 self.errors.append("Invalid start_date {date}".format(date=start_date))
@@ -127,10 +131,7 @@ class ScheduleActivities(object):
 
 
         if len(self.errors):
-            return {
-                "success": False,
-                "errors": self.errors
-            }
+            return response.set_response_error(self.errors)
 
         else:
             date = date_time.convert_datetime_str_to_obj(self.activity_data["date"])
@@ -142,9 +143,7 @@ class ScheduleActivities(object):
                 upsert=True
             )
 
-            return {
-                "success": True,
-            }
+            return response.set_response_ok()
 
 
     def get_surpressed_fields(self):
@@ -181,10 +180,7 @@ class ScheduleActivities(object):
             self.errors.append("Invalid Activity ID type {activity_id}".format(activity_id=activity_id))
 
         if len(self.errors):
-            return {
-                "success": False,
-                "errors": self.errors
-            }
+            return response.set_response_error(self.errors)
 
         else:
             surpressed_fields = self.get_surpressed_fields()
@@ -208,7 +204,4 @@ class ScheduleActivities(object):
 
             data = json.loads(dumps(schedule_data))
 
-            return {
-                "success": True,
-                "data": data
-            }
+            return response.set_response_ok(data)

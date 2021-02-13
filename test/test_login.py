@@ -1,7 +1,9 @@
 import unittest
 import pytest
 
-from api.forms.forms import *
+from api.forms.forms import ManageForm
+from api.forms.register_user import RegisterForm
+from api.forms.login_user import LoginForm
 from api.models.user import User
 
 email = "unit_test_email@test.com"
@@ -19,8 +21,6 @@ class TestLogin(unittest.TestCase):
 
     def tearDown(self):
          ManageForm(username).delete_user()
-         print("\n")
-
 
     # Test with Valid Username + Valid Password
     def test_valid_username(self):        

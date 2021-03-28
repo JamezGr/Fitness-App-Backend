@@ -36,7 +36,7 @@ See API Docs api/README for usage
 Unit Tests are located in ./test in Project Root as test_*.py files.
 To Run Individual Tests:
 ```
-$ python test_*.py
+$ pytest test_*.py
 ```
 To Run All Tests, go to ./scripts in Project Root.
 ```

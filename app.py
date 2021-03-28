@@ -184,14 +184,14 @@ def update_user_schedule():
     schedule_data = request.json
 
     scheduled_activity = ScheduleActivities(schedule_data)
-    update_scheduled_data = scheduled_activity.update_scheduled_data()
+    update_schedule_data = scheduled_activity.update_schedule_data()
 
-    if update_scheduled_data["success"]:
+    if update_schedule_data["success"]:
         return jsonify(SuccessMessage.SCHEDULE["UPDATED"]), 201
     
     else:
         error_message = ErrorMessage.SCHEDULE["INVALID"]
-        error_message["errors"] = update_scheduled_data["errors"]
+        error_message["errors"] = update_schedule_data["errors"]
 
         return jsonify(error_message, 400)
 
@@ -201,7 +201,7 @@ def update_user_schedule():
     "user_id": fields.Str(required=True),
     "activity_id": fields.Str(missing=""),
     "start_date": fields.Str(missing=current_date_time_str),
-    "end_date": fields.Str(missing=""),
+    "end_date": fields.Str(missing=current_date_time_str),
     "returnDetails": fields.Bool(missing=True),
     "returnIdsOnly": fields.Bool(missing=False),
     "returnSummary": fields.Bool(missing=False)

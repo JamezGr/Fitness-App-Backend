@@ -1,4 +1,4 @@
-def set_response_ok(data):
+def set_ok(data = None):
     success_reponse = {
         "success": True
     }
@@ -8,7 +8,7 @@ def set_response_ok(data):
 
     return success_reponse
 
-def set_response_error(errors):
+def set_error(errors):
     return {
         "success": False,
         "errors": errors

@@ -1,7 +1,7 @@
 from api.models.schedule import Schedule
 from api.models.url_params import UrlParams
 from api.config import Config, DevelopmentConfig, TestingConfig, ProductionConfig
-from api.utils import date_time, query, schedule, response
+from api.utils import date_time, query, response
 from bson.json_util import dumps, loads
 from bson.objectid import ObjectId
 

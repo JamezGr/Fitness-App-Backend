@@ -179,7 +179,7 @@ def protected():
 
 
 @app.route("/api/schedule", methods=['POST'])
-# @jwt_required
+@jwt_required
 def update_user_schedule():
     schedule_data = request.json
 
@@ -197,6 +197,7 @@ def update_user_schedule():
 
 
 @app.route("/api/schedule", methods=['GET'])
+@jwt_required
 @use_args({
     "user_id": fields.Str(required=True),
     "activity_id": fields.Str(missing=""),

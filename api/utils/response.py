@@ -12,4 +12,4 @@ def set_error(errors):
     return {
         "success": False,
         "errors": errors
-    }
+    }, 400

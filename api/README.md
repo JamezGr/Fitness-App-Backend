@@ -87,11 +87,7 @@ POST /api/refresh
 | refresh_token         | ``` string ``` |  **Required** Refresh Token Provided on User Login     
 
 ### Input  
-```json
-{
-    "refresh_token": {REFRESH_TOKEN}
-}
-```
+Authorization: 'Bearer {REFRESH_TOKEN}'
 ### Response
 ```json
 {

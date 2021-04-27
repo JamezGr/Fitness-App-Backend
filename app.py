@@ -219,6 +219,22 @@ def get_scheduled_activities(args):
     return fetched_schedule_data
 
 
+@app.route("/api/schedule", methods=['DELETE'])
+@jwt_required
+def delete_activity():
+    schedule_data = {
+        "request_params": request.json 
+    }
+    schedule_activities = ScheduleActivities(schedule_data)
+    deleted_activity = schedule_activities.delete_scheduled_data()
+
+    if deleted_activity is True:
+        return jsonify(SuccessMessage.SCHEDULE["DELETED"]), 202
+
+    else:
+        return jsonify(ErrorMessage.SCHEDULE["DELETE_ERROR"]), 405 
+
+
 # No cacheing at all for API endpoints.
 @app.after_request
 def add_header(response):

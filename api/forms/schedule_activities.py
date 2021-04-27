@@ -194,6 +194,10 @@ class ScheduleActivities(object):
 
     def delete_scheduled_data(self):
         if "activity_id" not in self.request_params:
-            return
+            return False
+        
+        if query.object_id_is_valid(self.request_params["activity_id"]) is False:
+            return False
         
         self.db_cluster_collection.delete_one({'_id': ObjectId(self.request_params["activity_id"])})
+        return True

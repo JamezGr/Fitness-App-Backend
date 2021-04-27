@@ -39,6 +39,10 @@ class SuccessMessage(object):
         "UPDATED": {
             "status": "201",
             "message": "Successfully Updated Schedule"
+        },
+        "DELETED": {
+            "status": "202",
+            "message": "Successfully Deleted Scheduled Activity"
         }
     }
 
@@ -120,6 +124,12 @@ class ErrorMessage:
             "source": {"pointer": "/api/schedule"},
             "title": "Invalid Schedule",
             "detail": "Schedule contains invalid Data"
+        },
+        "DELETE_ERROR": {
+            "status": "405",
+            "source": {"pointer": "/api/schedule"},
+            "title": "Could not Delete Scheduled Activity",
+            "detail": "Delete Schedule Data Unsuccessful."
         }
     }
 

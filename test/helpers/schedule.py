@@ -6,7 +6,7 @@ test_valid_schedule_data = {
 			"INTENSITY": "MODERATE",
 			"STROKE": "Breaststroke",
 			"DISTANCE": 1,
-			"GOAL_TIME": "00:10"
+			"TIME": "00:10:00"
 			}
 		],
 		"name": "SWIMMING",
@@ -37,7 +37,7 @@ test_invalid_schedule_data = {
 			"INTENSITY": "MODERATE",
 			"STROKE": "Breaststroke",
 			"DISTANCE": 1,
-			"GOAL_TIME": "00:10"
+			"TIME": "00:10:00"
 			}
 		],
 		"name": "SWIMMING",

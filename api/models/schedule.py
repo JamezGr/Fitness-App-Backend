@@ -74,12 +74,12 @@ class Schedule:
                         "type": "number",
                         "minimum": 0.1
                     },
-                    "GOAL_TIME": {
+                    "TIME": {
                         "type": "string",
-                        "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
+                        "format": "time"
                     }
                 },
-                "required": ["INTENSITY", "DISTANCE", "GOAL_TIME"]
+                "required": ["INTENSITY", "DISTANCE", "TIME"]
             },
             "CYCLING": {
                 "type": "object",
@@ -91,12 +91,12 @@ class Schedule:
                         "type": "number",
                         "minimum": 0.1
                     },
-                    "GOAL_TIME": {
+                    "TIME": {
                         "type": "string",
-                        "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
+                        "format": "time"
                     }
                 },
-                "required": ["INTENSITY", "DISTANCE", "GOAL_TIME"]
+                "required": ["INTENSITY", "DISTANCE", "TIME"]
             },
             "SWIMMING": {
                 "type": "object",
@@ -111,12 +111,12 @@ class Schedule:
                         "type": "number",
                         "minimum": 0.1
                     },
-                    "GOAL_TIME": {
+                    "TIME": {
                         "type": "string",
-                        "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
+                        "format": "time"
                     }
                 },
-                "required": ["INTENSITY", "STROKE", "DISTANCE", "GOAL_TIME"]
+                "required": ["INTENSITY", "STROKE", "DISTANCE", "TIME"]
             }
         }
     }

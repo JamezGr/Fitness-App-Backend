@@ -72,7 +72,7 @@ class Schedule:
                     },
                     "DISTANCE": {
                         "type": "number",
-                        "minimum": 0.1
+                        "minimum": 0.025
                     },
                     "TIME": {
                         "type": "string",
@@ -89,7 +89,7 @@ class Schedule:
                     },
                     "DISTANCE": {
                         "type": "number",
-                        "minimum": 0.1
+                        "minimum": 0.025
                     },
                     "TIME": {
                         "type": "string",
@@ -109,7 +109,7 @@ class Schedule:
                     },
                     "DISTANCE": {
                         "type": "number",
-                        "minimum": 0.1
+                        "minimum": 0.025
                     },
                     "TIME": {
                         "type": "string",

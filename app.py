@@ -191,9 +191,9 @@ def update_user_schedule():
     
     else:
         error_message = ErrorMessage.SCHEDULE["INVALID"]
-        error_message["errors"] = update_schedule_data["errors"]
+        error_message["errors"] = update_schedule_data[0]["errors"]
 
-        return jsonify(error_message, 400)
+        return jsonify(error_message), 400
 
 
 @app.route("/api/schedule", methods=['GET'])

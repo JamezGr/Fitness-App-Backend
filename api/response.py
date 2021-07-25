@@ -133,6 +133,15 @@ class ErrorMessage:
         }
     }
 
+    MAP_ROUTE = {
+        "INVALID_FILE_TYPE": {
+            "status": "400",
+            "source": {"pointer": "/api/routes"},
+            "title": "Invalid File",
+            "detail": "File Type is not gpx"
+        }
+    }
+
     FORBIDDEN = {
         "status": "403",
         "title": "Forbidden",

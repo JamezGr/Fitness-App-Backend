@@ -6,7 +6,10 @@ from api.forms.forms import *
 from api.forms.register_user import RegisterForm
 from api.forms.login_user import LoginForm
 from api.forms.schedule_activities import ScheduleActivities
+from api.forms.map_route import MapRoute
 from api.utils import *
+from api.utils import files
+from api.utils import response
 
 from flask import Flask, abort, request, jsonify, after_this_request, make_response, redirect
 from flask_cors import CORS, cross_origin
@@ -232,8 +235,31 @@ def delete_activity():
         return jsonify(SuccessMessage.SCHEDULE["DELETED"]), 202
 
     else:
-        return jsonify(ErrorMessage.SCHEDULE["DELETE_ERROR"]), 405 
+        return jsonify(ErrorMessage.SCHEDULE["DELETE_ERROR"]), 405
 
+@app.route("/api/routes", methods=['POST'])
+def add_route():
+    if "file" not in request.files:
+        return jsonify(ErrorMessage.INVALID_REQUEST), 401
+
+    file = request.files['file']
+
+    request_body = {
+        "file": file,
+        "user_id": request.form["user_id"]
+    }
+
+    route = MapRoute(request_body)
+
+    if route.is_gpx_file() is False:
+        data_response = response.set_error(["File type is not gpx"])
+
+    saved_file = mongo.save_file(file.filename, file)
+
+    ## return object id of saved file
+    data_response = response.set_ok({"id": str(saved_file)})
+
+    return jsonify(data_response), data_response["status"]
 
 # No cacheing at all for API endpoints.
 @app.after_request

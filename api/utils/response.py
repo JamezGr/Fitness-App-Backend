@@ -1,6 +1,8 @@
 def set_ok(data = None):
     success_reponse = {
-        "success": True
+        "success": True,
+        "status": 200,
+        "data": {}
     }
 
     if data is not None:
@@ -8,8 +10,9 @@ def set_ok(data = None):
 
     return success_reponse
 
-def set_error(errors):
+def set_error(errors, status = 400):
     return {
         "success": False,
-        "errors": errors
-    }, 400
+        "errors": errors,
+        "status": status
+    }

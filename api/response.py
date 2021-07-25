@@ -133,6 +133,27 @@ class ErrorMessage:
         }
     }
 
+    MAP_ROUTE = {
+        "INVALID_FILE_TYPE": {
+            "status": "400",
+            "source": {"pointer": "/api/routes"},
+            "title": "Invalid File",
+            "detail": "File Type is not gpx"
+        }
+    }
+
+    EXPIRED_TOKEN = {
+        "status": "401",
+        "title": "Invalid Access Token",
+        "detail": "Token Has Expired"
+    }
+
+    METHOD_NOT_ALLOWED = {
+        "status": "405",
+        "title": "Method Not Allowed",
+        "detail": "Method Not Allowed"
+    }
+
     FORBIDDEN = {
         "status": "403",
         "title": "Forbidden",

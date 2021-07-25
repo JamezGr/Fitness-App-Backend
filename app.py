@@ -10,8 +10,7 @@ from api.forms.map_route import MapRoute
 from api.utils import *
 from api.utils import files
 from api.utils import response
-
-from api.endpoints import default
+from api.endpoints import default, login
 
 from flask import Flask, abort, request, jsonify, after_this_request, make_response, redirect
 from flask_cors import CORS, cross_origin
@@ -50,6 +49,7 @@ current_date_time_obj = date_time.get_current_datetime()
 current_date_time_str = date_time.convert_datetime_obj_to_str(current_date_time_obj)
 
 app.register_blueprint(default.blueprint, url_prefix="/")
+app.register_blueprint(login.blueprint, url_prefix="/api/login")
 
 
 @app.route("/api/users", methods=['POST'])
@@ -81,28 +81,28 @@ def create_username():
     return jsonify(SuccessMessage(user).create_username()), 201
 
 
-@app.route("/api/login", methods=['POST'])
-def login():
-    data = request.json
+# @app.route("/api/login", methods=['POST'])
+# def login():
+#     data = request.json
 
-    username = request.json.get("username")
-    password = request.json.get("password")
+#     username = request.json.get("username")
+#     password = request.json.get("password")
 
-    user = User(email=None, user=username, password=password, confirm_password=None)
-    login_user = LoginForm(user)
+#     user = User(email=None, user=username, password=password, confirm_password=None)
+#     login_user = LoginForm(user)
 
-    if login_user.check_user_credentials() is False:
-        return jsonify(ErrorMessage.LOGIN["INVALID_CREDENTIALS"]), 401
+#     if login_user.check_user_credentials() is False:
+#         return jsonify(ErrorMessage.LOGIN["INVALID_CREDENTIALS"]), 401
 
-    return jsonify({
-        "status": "201",
-        "data": {
-            "username": username,
-            "access_token": create_access_token(identity=username, expires_delta=Config.ACCESS_TOKEN_EXPIRY),
-            "refresh_token": create_refresh_token(identity=username, expires_delta=Config.REFRESH_TOKEN_EXPIRY)
-        },
-        "message": "Successfully Logged In"
-    }), 200
+#     return jsonify({
+#         "status": "201",
+#         "data": {
+#             "username": username,
+#             "access_token": create_access_token(identity=username, expires_delta=Config.ACCESS_TOKEN_EXPIRY),
+#             "refresh_token": create_refresh_token(identity=username, expires_delta=Config.REFRESH_TOKEN_EXPIRY)
+#         },
+#         "message": "Successfully Logged In"
+#     }), 200
 
 
 @app.route("/api/users/<user>/profile", methods=['GET'])

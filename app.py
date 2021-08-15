@@ -10,7 +10,7 @@ from api.forms.map_route import MapRoute
 from api.utils import *
 from api.utils import files
 from api.utils import response
-from api.endpoints import default, login
+from api.endpoints import default, login, register_user
 
 from flask import Flask, abort, request, jsonify, after_this_request, make_response, redirect
 from flask_cors import CORS, cross_origin
@@ -50,59 +50,7 @@ current_date_time_str = date_time.convert_datetime_obj_to_str(current_date_time_
 
 app.register_blueprint(default.blueprint, url_prefix="/")
 app.register_blueprint(login.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
-
-
-@app.route("/api/users", methods=['POST'])
-def create_username():
-    data = request.json
-
-    email = request.json.get("email")
-    username = request.json.get("username")
-    password = request.json.get("password")
-    confirm_password = request.json.get("confirm_password")
-
-    user = User(email, username, password, confirm_password)
-    new_user = RegisterForm(user)
-
-    if new_user.check_email_valid() is False:
-        return jsonify({"errors": [ErrorMessage.REGISTER["INVALID_EMAIL"]]}), 401
-
-    if None or "" in (email, username, password, confirm_password):
-        return jsonify({"errors": [ErrorMessage.REGISTER["INVALID_REQUEST"]]}), 400
-
-    if new_user.check_username_exists() is True:
-        return jsonify({"errors": [ErrorMessage.REGISTER["USERNAME_EXISTS"]]}), 409
-
-    if new_user.validate() is False:
-        return jsonify({"errors": [ErrorMessage.REGISTER["INVALID_CREDENTIALS"]]}), 401
-
-    new_user.create_username()
-
-    return jsonify(SuccessMessage(user).create_username()), 201
-
-
-# @app.route("/api/login", methods=['POST'])
-# def login():
-#     data = request.json
-
-#     username = request.json.get("username")
-#     password = request.json.get("password")
-
-#     user = User(email=None, user=username, password=password, confirm_password=None)
-#     login_user = LoginForm(user)
-
-#     if login_user.check_user_credentials() is False:
-#         return jsonify(ErrorMessage.LOGIN["INVALID_CREDENTIALS"]), 401
-
-#     return jsonify({
-#         "status": "201",
-#         "data": {
-#             "username": username,
-#             "access_token": create_access_token(identity=username, expires_delta=Config.ACCESS_TOKEN_EXPIRY),
-#             "refresh_token": create_refresh_token(identity=username, expires_delta=Config.REFRESH_TOKEN_EXPIRY)
-#         },
-#         "message": "Successfully Logged In"
-#     }), 200
+app.register_blueprint(register_user.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
 
 
 @app.route("/api/users/<user>/profile", methods=['GET'])

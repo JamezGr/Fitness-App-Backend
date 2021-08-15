@@ -10,7 +10,7 @@ from flask_jwt_extended import create_access_token, create_refresh_token
 
 blueprint = Blueprint(name="login_endpoint", import_name=__name__)
 
-@blueprint.route('', methods=['POST'])
+@blueprint.route('login', methods=['POST'])
 def login():
     username = request.json.get("username")
     password = request.json.get("password")

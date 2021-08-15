@@ -49,7 +49,7 @@ current_date_time_obj = date_time.get_current_datetime()
 current_date_time_str = date_time.convert_datetime_obj_to_str(current_date_time_obj)
 
 app.register_blueprint(default.blueprint, url_prefix="/")
-app.register_blueprint(login.blueprint, url_prefix="/api/login")
+app.register_blueprint(login.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
 
 
 @app.route("/api/users", methods=['POST'])

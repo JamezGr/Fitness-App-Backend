@@ -10,7 +10,7 @@ from api.forms.map_route import MapRoute
 from api.utils import *
 from api.utils import files
 from api.utils import response
-from api.endpoints import default, login, register_user
+from api.endpoints import default, login, user
 
 from flask import Flask, abort, request, jsonify, after_this_request, make_response, redirect
 from flask_cors import CORS, cross_origin
@@ -50,20 +50,7 @@ current_date_time_str = date_time.convert_datetime_obj_to_str(current_date_time_
 
 app.register_blueprint(default.blueprint, url_prefix="/")
 app.register_blueprint(login.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
-app.register_blueprint(register_user.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
-
-
-@app.route("/api/users/<user>/profile", methods=['GET'])
-@jwt_required
-def get_user_profile(user):
-
-    user_to_check = User(email=None, user=user, password=None, confirm_password=None)
-
-    if UserProfileForm(user).get_profile() is None:
-        return jsonify({"errors": [ErrorMessage.USER_PROFILE["NO_PROFILE_AVAILABLE"]]}), 422
-
-    else:
-        return UserProfileForm(user).get_profile()
+app.register_blueprint(user.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
 
 @app.route("/uploads/<path:filename>")
 def get_upload(filename):
@@ -118,15 +105,6 @@ def refresh():
         'access_token': create_access_token(identity=current_user)
     }
     return jsonify(ret), 200
-
-
-# Get Current User Logged In
-@app.route("/api/users", methods=['GET'])
-@jwt_required
-def protected():
-    username = get_jwt_identity()
-    return jsonify(logged_in_as=username), 200
-
 
 @app.route("/api/schedule", methods=['POST'])
 @jwt_required

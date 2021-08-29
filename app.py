@@ -1,17 +1,13 @@
 from api.config import Config
 
 from api.response import *
-from api.models.user import User, UserProfile
 from api.forms.forms import *
-from api.forms.register_user import RegisterForm
-from api.forms.login_user import LoginForm
 from api.forms.schedule_activities import ScheduleActivities
 from api.forms.map_route import MapRoute
 from api.utils import *
-from api.utils import files
 from api.utils import response
 from api.utils.database import mongo
-from api.endpoints import default, login, user
+from api.endpoints import default, login, user, uploads
 
 from flask import Flask, abort, request, jsonify, after_this_request, make_response, redirect
 from flask_cors import CORS, cross_origin
@@ -22,13 +18,9 @@ from webargs.flaskparser import use_args
 from bson.json_util import dumps
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
-    jwt_refresh_token_required, create_refresh_token,
+    jwt_refresh_token_required,
     get_jwt_identity, verify_jwt_refresh_token_in_request
 )
-
-from jsonschema import validate
-from flask_pymongo import PyMongo
-from bson.binary import Binary
 
 URI_CLUSTER = Config.DB_CONNECTION_STRING
 DB_CLUSTER = URI_CLUSTER[Config.DB_CLUSTER_NAME]
@@ -53,10 +45,7 @@ current_date_time_str = date_time.convert_datetime_obj_to_str(current_date_time_
 app.register_blueprint(default.blueprint, url_prefix="/")
 app.register_blueprint(login.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
 app.register_blueprint(user.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
-
-@app.route("/uploads/<path:filename>")
-def get_upload(filename):
-    return mongo.send_file(filename)
+app.register_blueprint(uploads.blueprint, url_prefix="/")
 
 # Generate New Access Token once Expired
 @app.route("/api/refresh", methods=['POST'])

@@ -9,6 +9,7 @@ from api.utils.database import mongo
 from api.endpoints import (
     default,
     auth,
+    routes,
     user,
     uploads,
     schedule,
@@ -41,30 +42,7 @@ app.register_blueprint(auth.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
 app.register_blueprint(user.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
 app.register_blueprint(uploads.blueprint, url_prefix="/")
 app.register_blueprint(schedule.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
-
-@app.route("/api/routes", methods=['POST'])
-def add_route():
-    if "file" not in request.files:
-        return jsonify(ErrorMessage.INVALID_REQUEST), 401
-
-    file = request.files['file']
-
-    request_body = {
-        "file": file,
-        "user_id": request.form["user_id"]
-    }
-
-    route = MapRoute(request_body)
-
-    if route.is_gpx_file() is False:
-        data_response = response.set_error(["File type is not gpx"])
-
-    saved_file = mongo.save_file(file.filename, file)
-
-    ## return object id of saved file
-    data_response = response.set_ok({"id": str(saved_file)})
-
-    return jsonify(data_response), data_response["status"]
+app.register_blueprint(routes.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
 
 # No cacheing at all for API endpoints.
 @app.after_request

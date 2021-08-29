@@ -2,23 +2,22 @@ from api.config import Config
 
 from api.response import *
 from api.forms.forms import *
-from api.forms.schedule_activities import ScheduleActivities
 from api.forms.map_route import MapRoute
 from api.utils import *
 from api.utils import response
 from api.utils.database import mongo
-from api.endpoints import default, auth, user, uploads
-
-from flask import Flask, abort, request, jsonify, after_this_request, make_response, redirect
-from flask_cors import CORS, cross_origin
-
-from webargs import fields
-from webargs.flaskparser import use_args
-
-from bson.json_util import dumps
-from flask_jwt_extended import (
-    JWTManager, jwt_required
+from api.endpoints import (
+    default,
+    auth,
+    user,
+    uploads,
+    schedule,
 )
+
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+
+from flask_jwt_extended import JWTManager
 
 URI_CLUSTER = Config.DB_CONNECTION_STRING
 DB_CLUSTER = URI_CLUSTER[Config.DB_CLUSTER_NAME]
@@ -37,69 +36,11 @@ CORS(app, resources={
     }
 })
 
-current_date_time_obj = date_time.get_current_datetime()
-current_date_time_str = date_time.convert_datetime_obj_to_str(current_date_time_obj)
-
 app.register_blueprint(default.blueprint, url_prefix="/")
 app.register_blueprint(auth.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
 app.register_blueprint(user.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
 app.register_blueprint(uploads.blueprint, url_prefix="/")
-
-@app.route("/api/schedule", methods=['POST'])
-@jwt_required
-def update_user_schedule():
-    schedule_data = request.json
-
-    scheduled_activity = ScheduleActivities(schedule_data)
-    update_schedule_data = scheduled_activity.update_schedule_data()
-
-    if update_schedule_data["success"]:
-        return jsonify(SuccessMessage.SCHEDULE["UPDATED"]), 201
-    
-    else:
-        error_message = ErrorMessage.SCHEDULE["INVALID"]
-        error_message["errors"] = update_schedule_data[0]["errors"]
-
-        return jsonify(error_message), 400
-
-
-@app.route("/api/schedule", methods=['GET'])
-@jwt_required
-@use_args({
-    "user_id": fields.Str(required=True),
-    "activity_id": fields.Str(missing=""),
-    "start_date": fields.Str(missing=current_date_time_str),
-    "end_date": fields.Str(missing=current_date_time_str),
-    "returnDetails": fields.Bool(missing=True),
-    "returnIdsOnly": fields.Bool(missing=False),
-    "returnSummary": fields.Bool(missing=False)
-    })
-def get_scheduled_activities(args):
-    request_params = args
-    schedule_data = {
-        "request_params": request_params 
-    }
-
-    schedule_activities = ScheduleActivities(schedule_data)
-    fetched_schedule_data = schedule_activities.get_scheduled_data()
-
-    return fetched_schedule_data
-
-
-@app.route("/api/schedule", methods=['DELETE'])
-@jwt_required
-def delete_activity():
-    schedule_data = {
-        "request_params": request.json 
-    }
-    schedule_activities = ScheduleActivities(schedule_data)
-    deleted_activity = schedule_activities.delete_scheduled_data()
-
-    if deleted_activity is True:
-        return jsonify(SuccessMessage.SCHEDULE["DELETED"]), 202
-
-    else:
-        return jsonify(ErrorMessage.SCHEDULE["DELETE_ERROR"]), 405
+app.register_blueprint(schedule.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
 
 @app.route("/api/routes", methods=['POST'])
 def add_route():

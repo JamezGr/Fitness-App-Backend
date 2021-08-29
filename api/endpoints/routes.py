@@ -1,3 +1,4 @@
+from api.response import ErrorMessage
 from api.utils import query
 from api.forms.map_route import MapRoute
 from api.utils import response
@@ -15,7 +16,8 @@ def add_route():
     file = request.files['file']
 
     if file.filename == '':
-        return jsonify(response.set_error(["Required request part 'file' is not present"])), 401
+        message = ErrorMessage.MAP_ROUTE["MISSING_FILE"]
+        return jsonify(message), message["status"]
 
     request_body = {
         "file": file,
@@ -26,7 +28,6 @@ def add_route():
     ## return object id of saved file
     return jsonify(upload_response), upload_response["status"]
 
-
 @blueprint.route("routes", methods=['GET'])
 @use_args({
     "route_id": fields.Str(required=True),
@@ -36,7 +37,7 @@ def get_route(args):
     route_id = request_params["route_id"]
 
     if route_id is None or query.object_id_is_valid(route_id) is False:
-        return jsonify(response.set_error(["route_id is invalid format."]))
+        return jsonify(response.set_error(["route_id is invalid format."])), 400
 
     get_response = MapRoute(request_params).get()
 
@@ -44,3 +45,13 @@ def get_route(args):
         return jsonify(response.set_ok({"message": "no route found"}))
 
     return get_response
+
+@blueprint.route("routes", methods=['DELETE'])
+def delete_route():
+    request_body = request.json
+
+    print(request_body)
+
+    deleted_response = MapRoute(request_body).delete()
+
+    return jsonify(deleted_response), deleted_response["status"]

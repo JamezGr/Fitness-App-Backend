@@ -46,6 +46,13 @@ class SuccessMessage(object):
         }
     }
 
+    MAP_ROUTE = {
+        "DELETED": {
+            "status": "202",
+            "message": "Successfully Deleted Map Route"
+        }
+    }
+
 
 class ErrorMessage:
     LOGIN = {
@@ -139,6 +146,12 @@ class ErrorMessage:
             "source": {"pointer": "/api/routes"},
             "title": "Invalid File",
             "detail": "File Type is not gpx"
+        },
+        "MISSING_FILE": {
+            "status": 400,
+            "source": {"pointer": "/api/routes"},
+            "title": "Missing File",
+            "detail": "Required request part 'file' is not present",
         }
     }
 

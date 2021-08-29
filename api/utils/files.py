@@ -27,3 +27,14 @@ def get_file_by_id(id):
     
     except NoFile:
         return None
+
+def delete_file(id):
+    storage = GridFS(mongo.db, "fs")
+
+    try:
+        storage.delete(file_id=ObjectId(id))
+        return True
+    
+    # not sure what to do here...
+    except Exception as e:
+        return False

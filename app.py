@@ -7,7 +7,7 @@ from api.forms.map_route import MapRoute
 from api.utils import *
 from api.utils import response
 from api.utils.database import mongo
-from api.endpoints import default, login, user, uploads
+from api.endpoints import default, auth, user, uploads
 
 from flask import Flask, abort, request, jsonify, after_this_request, make_response, redirect
 from flask_cors import CORS, cross_origin
@@ -17,9 +17,7 @@ from webargs.flaskparser import use_args
 
 from bson.json_util import dumps
 from flask_jwt_extended import (
-    JWTManager, jwt_required, create_access_token,
-    jwt_refresh_token_required,
-    get_jwt_identity, verify_jwt_refresh_token_in_request
+    JWTManager, jwt_required
 )
 
 URI_CLUSTER = Config.DB_CONNECTION_STRING
@@ -43,20 +41,9 @@ current_date_time_obj = date_time.get_current_datetime()
 current_date_time_str = date_time.convert_datetime_obj_to_str(current_date_time_obj)
 
 app.register_blueprint(default.blueprint, url_prefix="/")
-app.register_blueprint(login.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
+app.register_blueprint(auth.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
 app.register_blueprint(user.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
 app.register_blueprint(uploads.blueprint, url_prefix="/")
-
-# Generate New Access Token once Expired
-@app.route("/api/refresh", methods=['POST'])
-@jwt_refresh_token_required
-def refresh():
-    verify_token = verify_jwt_refresh_token_in_request()
-    current_user = get_jwt_identity()
-    ret = {
-        'access_token': create_access_token(identity=current_user)
-    }
-    return jsonify(ret), 200
 
 @app.route("/api/schedule", methods=['POST'])
 @jwt_required

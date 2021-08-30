@@ -31,6 +31,7 @@ class Config:
     ACCESS_TOKEN_EXPIRY = timedelta(minutes=15)
     REFRESH_TOKEN_EXPIRY = timedelta(weeks=2)
 
+    ENDPOINT_PREFIX = "/api"
 
 class DevelopmentConfig:
     DEBUG = True

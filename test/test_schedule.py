@@ -27,7 +27,7 @@ def test_create_activity():
 def test_create_activity_with_invalid_request_body():
     created_activity = ScheduleActivities(test_invalid_schedule_data).update_schedule_data()
 
-    assert "errors" in created_activity[0]
+    assert created_activity["status"] == 400
 
 """ Should Fetch Data by Activity Id """
 def test_fetch_data_by_activity_id():
@@ -57,7 +57,8 @@ def test_delete_activity():
     ScheduleActivities(updated_params).delete_scheduled_data()
     activity_found = ScheduleActivities(test_valid_request_params).get_scheduled_data()
 
-    assert "data" not in activity_found
+    assert len(activity_found["data"]) == 0
+    assert activity_found["status"] == 200
 
 """ Should Fetch Data by Activity Id """
 def test_get_activity_by_id():
@@ -90,10 +91,9 @@ def test_check_invalid_date_range():
     test_params = test_valid_request_params
     test_params["request_params"]["end_date"] = "2021-02-01"
 
-    activity_to_find = ScheduleActivities(test_params).get_scheduled_data()
+    response = ScheduleActivities(test_params).get_scheduled_data()
 
-    assert "errors" in activity_to_find[0]
-    assert activity_to_find[0]["errors"][0] == 'start_date 2021-02-04 is after end_date 2021-02-01'
+    assert response["status"] == 400
 
 """ Should return Activity Ids only if returnIdsOnly set to true """
 def test_return_ids_only():

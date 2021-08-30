@@ -1,8 +1,11 @@
 # created by virtualenv automatically
 *.env
 *.pyc
+*.egg-info
 
 lib/*
 .netrc
 bin/*
 pyvenv.cfg
+.pytest_cache
+venv

@@ -11,6 +11,12 @@ def convert_datetime_str_to_obj(datetime_str):
 def get_current_datetime():
     return datetime.datetime.now()
 
+def get_current_datetime_as_string():
+    curent_datetime = get_current_datetime()
+    current_datetime_str = convert_datetime_obj_to_str(curent_datetime)
+
+    return current_datetime_str
+
 def get_first_day_of_selected_month(datetime_obj):
     try:
         return datetime_obj.replace(day=1)

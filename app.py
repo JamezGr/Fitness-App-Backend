@@ -58,7 +58,7 @@ def method_not_allowed(e):
     return jsonify(ErrorMessage.METHOD_NOT_ALLOWED), 405
 
 @jwt.expired_token_loader
-def my_expired_token_callback(jwt_header, jwt_payload):
+def my_expired_token_callback():
     error_message = ErrorMessage.EXPIRED_TOKEN
 
     return jsonify(error_message), 401

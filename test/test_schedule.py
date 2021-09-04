@@ -11,7 +11,7 @@ from test.helpers.schedule import test_valid_schedule_data, test_valid_request_p
 def test_create_activity():
     updated_activity_data = ScheduleActivities(test_valid_schedule_data).update_schedule_data()
     
-    activity_found = ScheduleActivities(test_valid_request_params).get_scheduled_data()
+    activity_found = ScheduleActivities(test_valid_request_params).get()
     activity_id = updated_activity_data["data"]["id"]
 
     updated_params = {
@@ -37,7 +37,7 @@ def test_fetch_data_by_activity_id():
     test_params = test_valid_request_params
     test_params["request_params"]["activity_id"] = activity_id_to_find
 
-    activity_data_to_find = ScheduleActivities(test_params).get_scheduled_data()
+    activity_data_to_find = ScheduleActivities(test_params).get()
 
     ScheduleActivities(test_params).delete_scheduled_data()
     assert activity_id_to_find == activity_data_to_find["data"]["_id"]["$oid"]
@@ -55,7 +55,7 @@ def test_delete_activity():
     }
 
     ScheduleActivities(updated_params).delete_scheduled_data()
-    activity_found = ScheduleActivities(test_valid_request_params).get_scheduled_data()
+    activity_found = ScheduleActivities(test_valid_request_params).get()
 
     assert len(activity_found["data"]) == 0
     assert activity_found["status"] == 200
@@ -64,14 +64,14 @@ def test_delete_activity():
 def test_get_activity_by_id():
     updated_activity_data = ScheduleActivities(test_valid_schedule_data).update_schedule_data()
     
-    activity_found = ScheduleActivities(test_valid_request_params).get_scheduled_data()
+    activity_found = ScheduleActivities(test_valid_request_params).get()
     activity_id = updated_activity_data["data"]["id"]
 
     updated_params = test_valid_request_params
     updated_params["request_params"]["activity_id"] = str(activity_id)
     updated_params["request_params"]["user_id"] = test_valid_schedule_data["user_id"]
 
-    activity_to_find = ScheduleActivities(updated_params).get_scheduled_data()
+    activity_to_find = ScheduleActivities(updated_params).get()
     ScheduleActivities(updated_params).delete_scheduled_data()
 
     assert activity_to_find["data"]["_id"]["$oid"] == str(activity_id)
@@ -82,7 +82,7 @@ def test_check_invalid_activity_id_type():
     test_params["request_params"]["activity_id"] = "None"
     test_params["request_params"]["user_id"] = test_valid_schedule_data["user_id"]
 
-    activity_to_find = ScheduleActivities(test_params).get_scheduled_data()
+    activity_to_find = ScheduleActivities(test_params).get()
 
     assert activity_to_find["data"] == []
 
@@ -91,7 +91,7 @@ def test_check_invalid_date_range():
     test_params = test_valid_request_params
     test_params["request_params"]["end_date"] = "2021-02-01"
 
-    response = ScheduleActivities(test_params).get_scheduled_data()
+    response = ScheduleActivities(test_params).get()
 
     assert response["status"] == 400
 
@@ -105,7 +105,7 @@ def test_return_ids_only():
     test_params["request_params"]["returnIdsOnly"] = True
     test_params["request_params"]["returnSummaryOnly"] = False
 
-    activity_data_to_find = ScheduleActivities(test_params).get_scheduled_data()
+    activity_data_to_find = ScheduleActivities(test_params).get()
 
     ScheduleActivities(test_params).delete_scheduled_data()
     id_list_valid = all(object_id_is_valid(id) for id in activity_data_to_find["data"])
@@ -123,7 +123,7 @@ def test_return_summary():
     test_params["request_params"]["returnDetails"] = False
     test_params["request_params"]["returnSummary"] = True
 
-    activity_data_to_find = ScheduleActivities(test_params).get_scheduled_data()
+    activity_data_to_find = ScheduleActivities(test_params).get()
     response_data = activity_data_to_find["data"]
 
     ScheduleActivities(test_params).delete_scheduled_data()
@@ -141,7 +141,7 @@ def test_return_details():
     test_params["request_params"]["returnDetails"] = True
     test_params["request_params"]["returnSummary"] = False
 
-    activity_data_to_find = ScheduleActivities(test_params).get_scheduled_data()
+    activity_data_to_find = ScheduleActivities(test_params).get()
     response_data = activity_data_to_find["data"]
 
     ScheduleActivities(test_params).delete_scheduled_data()

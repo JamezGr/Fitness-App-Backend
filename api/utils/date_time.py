@@ -37,3 +37,20 @@ def validate_datetime(datetime_obj):
 
     else:
         return False
+
+# check if date in format YYYY-MM-DD
+def validate_date_format(date_string):
+    try:
+        datetime.datetime.strptime(date_string, '%Y-%m-%d')
+        return True
+    except ValueError:
+        return False
+
+def is_before_date(start_date, end_date):
+    if validate_date_format(start_date) is False or validate_date_format(end_date) is False:
+        return False
+
+    start_date_obj = convert_datetime_str_to_obj(start_date)
+    end_date_obj = convert_datetime_str_to_obj(end_date)
+
+    return start_date_obj.date() < end_date_obj.date()

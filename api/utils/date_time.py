@@ -46,6 +46,8 @@ def validate_date_format(date_string):
     except ValueError:
         return False
 
+# start_date = YYYY-MM-DD
+# end_date = YYYY-MM-DD
 def is_before_date(start_date, end_date):
     if validate_date_format(start_date) is False or validate_date_format(end_date) is False:
         return False

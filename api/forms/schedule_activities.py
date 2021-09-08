@@ -1,5 +1,6 @@
+from flask.globals import request
 from api.utils.json_encoder import JsonEncoder
-from api.models.schedule import Schedule
+# from api.models.schedule import Schedule
 from api.models.url_params import UrlParams
 from api.config import Config, DevelopmentConfig, TestingConfig, ProductionConfig
 from api.utils import date_time, query, response
@@ -19,8 +20,10 @@ class ScheduleActivities(object):
         # self.request_params = activity_data.get("request_params", None)
         self.user_id = request_data.get("user_id", None)
         self.activity_id = request_data.get("activity_id", None)
+        self.date = request_data.get("date", None)
         self.start_date = request_data.get("start_date", None)
         self.end_date = request_data.get("end_date", None)
+        self.activities = request_data.get("activities", None)
 
         self.return_details = request_data.get("returnDetails", None)
         self.return_ids = request_data.get("returnIdsOnly", None)
@@ -167,6 +170,17 @@ class ScheduleActivities(object):
         return data
 
 
+    def create(self):
+        documents = [dict(item, **{
+            "user_id": ObjectId(self.user_id),
+            "last_updated": date_time.get_current_datetime(),
+            "date": date_time.convert_datetime_str_to_obj(self.date)
+        }) for item in self.activities]
+
+        self.collection.insert(documents)
+        return response.set_ok({"message": "Successfully Created."})
+
+
     def get(self):
         if self.start_date != self.end_date:
             if date_time.is_before_date(self.start_date, self.end_date) is False:
@@ -179,29 +193,6 @@ class ScheduleActivities(object):
             data = self.get_activities_by_date_range()
 
         return response.set_ok(data)
-        # request_params = self.request_params
-
-        # if self.is_valid_request_params() is False:
-        #     return response.set_error(self.errors)
-
-        # if "activity_id" in request_params and query.object_id_is_valid(request_params["activity_id"]):
-        #     schedule_data = self.get_scheduled_data_by_id()
-
-        # else:
-        #     schedule_data = self.get_scheduled_data_by_date_range()
-
-        # if len(self.errors):
-        #     return response.set_error(self.errors)
-
-        # # Return Array of Ids Only
-        # if "returnIdsOnly" in request_params and request_params["returnIdsOnly"] is True:    
-        #     activity_data = [schedule_data] if type(schedule_data) is not list else schedule_data
-        #     activity_ids = []
-
-        #     for activity in activity_data:
-        #         activity_ids.append(activity["_id"]["$oid"])
-
-        #     schedule_data = activity_ids
 
 
     def update_schedule_data(self):

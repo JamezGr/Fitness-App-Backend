@@ -171,6 +171,7 @@ class ActivitySchema:
             },
             "activities": {
                 "type": "array",
+                "minItems": 1,
                 "items": {
                     "oneOf": [
                         by_type["lifting"],

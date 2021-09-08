@@ -96,21 +96,33 @@ class ScheduleActivities(object):
     #         return False 
 
 
-    # def get_surpressed_fields(self):
-    #     surpressed_fields = {}
-    #     surpressed_fields["user_id"] = 0
+    def get_surpressed_fields(self):
+        surpressed_fields = {
+            "user_id": 0,
+        }
 
-    #     if self.request_params["returnIdsOnly"] is True:
-    #         surpressed_fields["_id"] = 1
-    #         surpressed_fields["activities"] = 0
-    #         surpressed_fields["date"] = 0
-    #         return surpressed_fields
+        if self.return_ids is True:
+            surpressed_fields["_id"] = 1
+            surpressed_fields["activities"] = 0
+            surpressed_fields["date"] = 0
+            surpressed_fields["name"] = 0
+            surpressed_fields["details"] = 0
+            surpressed_fields["last_updated"] = 0
+            return surpressed_fields
 
-    #     if self.request_params["returnSummary"] is True:
-    #         surpressed_fields["activities.details"] = 0
-    #         return surpressed_fields
+        if self.return_details is True:
+            return surpressed_fields
 
-    #     return surpressed_fields
+        if self.return_details is False:
+            surpressed_fields["details"] = 0
+
+
+        if self.return_summary is True:
+            surpressed_fields["details"] = 0
+            surpressed_fields["last_updated"] = 0
+            return surpressed_fields
+
+        return surpressed_fields
 
 
     # def get_scheduled_data_by_id(self):
@@ -151,7 +163,7 @@ class ScheduleActivities(object):
         activity_found = self.collection.find_one({
                 "_id": ObjectId(self.activity_id),
                 "user_id": ObjectId(self.user_id)
-            })
+            }, self.get_surpressed_fields())
 
         data = json.loads(json.dumps(activity_found, indent=4, cls=JsonEncoder))
         return data
@@ -164,7 +176,7 @@ class ScheduleActivities(object):
                 "$lte":  date_time.convert_datetime_str_to_obj(self.end_date)
             }, 
             "user_id": ObjectId(self.user_id)},
-        ]})
+        ]}, self.get_surpressed_fields())
 
         data = json.loads(json.dumps(list(activities_found), indent=4, cls=JsonEncoder))
         return data

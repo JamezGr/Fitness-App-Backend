@@ -147,7 +147,7 @@ class ScheduleActivities(object):
     #     return data
 
 
-    def get_activity_by_id(self):
+    def get_by_id(self):
         activity_found = self.collection.find_one({
                 "_id": ObjectId(self.activity_id),
                 "user_id": ObjectId(self.user_id)
@@ -157,7 +157,7 @@ class ScheduleActivities(object):
         return data
 
 
-    def get_activities_by_date_range(self):
+    def get_by_date_range(self):
         activities_found = self.collection.find({"$and": [
             {"date": {
                 "$gte": date_time.convert_datetime_str_to_obj(self.start_date),
@@ -187,10 +187,10 @@ class ScheduleActivities(object):
                 return response.set_error(["start_date is after end_date"])
 
         if self.activity_id is not None:
-            data = self.get_activity_by_id()
+            data = self.get_by_id()
 
         else:
-            data = self.get_activities_by_date_range()
+            data = self.get_by_date_range()
 
         return response.set_ok(data)
 

@@ -211,8 +211,15 @@ class ScheduleActivities(object):
 
     def delete_by_id(self):
         try: 
-            self.collection.delete_one({'_id': ObjectId(self.activity_id)})
-            return SuccessMessage.SCHEDULE["DELETED"]
+            deleted_resource = self.collection.delete_one({
+                "_id": ObjectId(self.activity_id),
+                "user_id": ObjectId(self.user_id)
+            })
+
+            if deleted_resource.deleted_count > 0:
+                return SuccessMessage.SCHEDULE["DELETED"]
+            else:
+                return SuccessMessage.SCHEDULE["EMPTY_DELETE"]
 
         except:
             return ErrorMessage.SCHEDULE["DELETE_ERROR"]

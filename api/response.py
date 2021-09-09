@@ -41,8 +41,12 @@ class SuccessMessage(object):
             "message": "Successfully Updated Schedule"
         },
         "DELETED": {
-            "status": "202",
+            "status": "200",
             "message": "Successfully Deleted Scheduled Activity"
+        },
+        "EMPTY_DELETE": {
+            "status": "204",
+            "message": "No resource has been deleted"
         }
     }
 

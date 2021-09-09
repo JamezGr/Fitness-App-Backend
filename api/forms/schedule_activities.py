@@ -1,4 +1,6 @@
+from api.response import ErrorMessage, SuccessMessage
 from flask.globals import request
+from flask.json import jsonify
 from api.utils.json_encoder import JsonEncoder
 # from api.models.schedule import Schedule
 from api.models.url_params import UrlParams
@@ -205,6 +207,15 @@ class ScheduleActivities(object):
             data = self.get_by_date_range()
 
         return response.set_ok(data)
+
+
+    def delete_by_id(self):
+        try: 
+            self.collection.delete_one({'_id': ObjectId(self.activity_id)})
+            return SuccessMessage.SCHEDULE["DELETED"]
+
+        except:
+            return ErrorMessage.SCHEDULE["DELETE_ERROR"]
 
 
     def update_schedule_data(self):

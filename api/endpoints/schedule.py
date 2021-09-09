@@ -37,19 +37,6 @@ def create_user_schedule():
     request_response = ScheduleActivities(request_body).create()
 
     return jsonify(request_response), request_response["status"]
-    # schedule_data = request.json
-
-    # scheduled_activity = ScheduleActivities(schedule_data)
-    # update_schedule_data = scheduled_activity.update_schedule_data()
-
-    # if update_schedule_data["success"]:
-    #     return jsonify(SuccessMessage.SCHEDULE["UPDATED"]), 201
-    
-    # else:
-    #     error_message = ErrorMessage.SCHEDULE["INVALID"]
-    #     error_message["errors"] = update_schedule_data[0]["errors"]
-
-    #     return jsonify(error_message), 400
 
 
 @blueprint.route("schedule", methods=['GET'])
@@ -73,16 +60,6 @@ def create_user_schedule():
     "returnSummary": fields.Bool(missing=False)
     })
 def get_activities(request_params):
-    # request_params = args
-    # schedule_data = {
-    #     "request_params": request_params 
-    # }
-
-    # schedule_activities = ScheduleActivities(request_params)
-    # fetched_schedule_data = schedule_activities.get()
-
-    # return fetched_schedule_data
-
     activities = ScheduleActivities(request_params)
     request_response = activities.get()
 
@@ -90,16 +67,18 @@ def get_activities(request_params):
 
 
 @blueprint.route("schedule", methods=['DELETE'])
-@jwt_required
-def delete_activity():
-    schedule_data = {
-        "request_params": request.json 
-    }
-    schedule_activities = ScheduleActivities(schedule_data)
-    deleted_activity = schedule_activities.delete_scheduled_data()
+# @jwt_required
+@use_args({
+    "user_id": fields.Str(
+        required=True,
+        validate=lambda id: query.object_id_is_valid(id)
+    ),
+    "activity_id": fields.Str(
+        required=True,
+        validate=lambda id: query.object_id_is_valid(id)
+    )
+})
+def delete_activity(request_params):
+    request_response = ScheduleActivities(request_params).delete_by_id()
 
-    if deleted_activity is True:
-        return jsonify(SuccessMessage.SCHEDULE["DELETED"]), 202
-
-    else:
-        return jsonify(ErrorMessage.SCHEDULE["DELETE_ERROR"]), 405
+    return jsonify(request_response), request_response["status"]

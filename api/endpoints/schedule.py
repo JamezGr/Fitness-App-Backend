@@ -74,11 +74,23 @@ def get_activities(request_params):
         validate=lambda id: query.object_id_is_valid(id)
     ),
     "activity_id": fields.Str(
-        required=True,
+        required=False,
+        missing=None,
         validate=lambda id: query.object_id_is_valid(id)
+    ),
+    # schedule items as object ids
+    "items": fields.List(
+        fields.String(),
+        required=False,
+        missing=None,
+        validate=lambda items: all(query.object_id_is_valid(item) for item in items)
     )
 })
 def delete_activity(request_params):
-    request_response = ScheduleActivities(request_params).delete_by_id()
+    if request_params["activity_id"] is None and request_params["items"] is None:
+        request_response = ErrorMessage.SCHEDULE["INVALID"]
+        return jsonify(request_response), request_response["status"]
+
+    request_response = ScheduleActivities(request_params).delete()
 
     return jsonify(request_response), request_response["status"]

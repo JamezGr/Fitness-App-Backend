@@ -40,9 +40,13 @@ class SuccessMessage(object):
             "status": "201",
             "message": "Successfully Updated Schedule"
         },
-        "DELETED": {
+        "SINGLE_DELETE": {
             "status": "200",
             "message": "Successfully Deleted Scheduled Activity"
+        },
+        "BULK_DELETE": {
+            "status": "200",
+            "message": "Successfully Deleted Scheduled Activities"
         },
         "EMPTY_DELETE": {
             "status": "204",

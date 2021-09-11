@@ -27,76 +27,14 @@ class ScheduleActivities(object):
         self.end_date = request_data.get("end_date", None)
         self.activities = request_data.get("activities", None)
 
+        # activities as object ids
+        self.items = request_data.get("items", None)
+
         self.return_details = request_data.get("returnDetails", None)
         self.return_ids = request_data.get("returnIdsOnly", None)
         self.return_summary = request_data.get("returnSummary", None)
 
         self.collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["user_schedule"]]
-
-    # def is_valid_format(self):
-    #     try:
-    #         jsonschema.validate(instance=self.activity_data, schema=Schedule.data, format_checker=jsonschema.FormatChecker())
-    #         return True
-        
-    #     except jsonschema.ValidationError as error:
-    #         self.errors.append(error.message)
-    #         return False
-
-
-    # def is_valid_activity_format(self):
-    #     try:
-    #         activities = self.activity_data["activities"]
-    #         for activity in activities:
-    #             activity_details = activity["details"]
-    #             activity_name = activity["name"]
-                
-    #             for detail in activity_details:
-    #                 activity_schema = Schedule.activities["details"][activity_name]
-    #                 jsonschema.validate(instance=detail, schema=activity_schema, format_checker=jsonschema.FormatChecker())
-
-    #                 return True
-
-    #     except jsonschema.ValidationError as error:
-    #         self.errors.append(error.message)
-    #         return False
-
-
-    # def is_valid_request_params(self):
-    #     try:
-    #         jsonschema.validate(instance=self.request_params, schema=UrlParams.schedule, format_checker=jsonschema.FormatChecker())
-    #         return True
-        
-    #     except jsonschema.ValidationError as error:
-    #         self.errors.append(error.message)
-    #         return False
-
-
-    # def is_valid_request_date_range(self):
-    #     try:
-    #         request_params = self.activity_data["request_params"]
-    #         start_date = request_params["start_date"]
-    #         end_date = request_params["end_date"]
-
-    #         start_date_obj = date_time.convert_datetime_str_to_obj(start_date)
-    #         end_date_obj = date_time.convert_datetime_str_to_obj(end_date)
-
-    #         if start_date_obj is None and start_date is not None:
-    #             self.errors.append("Invalid start_date {date}".format(date=start_date))
-
-    #         if end_date_obj is None and end_date is not None:
-    #             self.errors.append("Invalid end_date {date}".format(date=end_date))
-
-    #         if start_date > end_date:
-    #             self.errors.append("start_date {start} is after end_date {end}".format(start=start_date, end=end_date))
-
-    #         if len(self.errors):
-    #             return False
-
-    #         return True
-
-    #     except:
-    #         return False 
-
 
     def get_surpressed_fields(self):
         surpressed_fields = {
@@ -125,40 +63,6 @@ class ScheduleActivities(object):
             return surpressed_fields
 
         return surpressed_fields
-
-
-    # def get_scheduled_data_by_id(self):
-    #     activity_id = self.request_params["activity_id"]
-    #     user_id = self.request_params["user_id"]
-
-    #     schedule_data = self.collection.find_one(
-    #         {
-    #             "_id": ObjectId(activity_id),
-    #             "user_id": user_id
-    #         }, self.get_surpressed_fields()
-    #     )
-
-    #     data = json.loads(dumps(schedule_data))
-    #     return data
-
-
-    # def get_scheduled_data_by_date_range(self):
-    #     if self.is_valid_request_date_range() is False:
-    #         return response.set_error(self.errors)
-
-    #     start_date = date_time.convert_datetime_str_to_obj(self.request_params["start_date"])
-    #     end_date = date_time.convert_datetime_str_to_obj(self.request_params["end_date"])
-
-    #     schedule_data = self.collection.find({"$and": [
-    #         {"date": {
-    #             "$gte": start_date,
-    #             "$lte": end_date
-    #         }, 
-    #         "user_id": self.request_params["user_id"]},
-    #     ]}, self.get_surpressed_fields())
-
-    #     data = json.loads(dumps(schedule_data))
-    #     return data
 
 
     def get_by_id(self):
@@ -209,6 +113,32 @@ class ScheduleActivities(object):
         return response.set_ok(data)
 
 
+    def delete(self):
+        if self.activity_id is not None:
+            return self.delete_by_id()
+        
+        if self.items is not None:
+            return self.delete_many()
+
+
+    def delete_many(self):
+        try:
+            items = [ObjectId(item) for item in self.items]
+
+            deleted_items = self.collection.delete_many({
+                "_id": { "$in": items},
+                "user_id": ObjectId(self.user_id)
+            })
+
+            if deleted_items.deleted_count > 0:
+                return SuccessMessage.SCHEDULE["BULK_DELETE"]
+            else:
+                return SuccessMessage.SCHEDULE["EMPTY_DELETE"]
+
+        except:
+            return ErrorMessage.SCHEDULE["DELETE_ERROR"]
+
+
     def delete_by_id(self):
         try: 
             deleted_resource = self.collection.delete_one({
@@ -217,50 +147,9 @@ class ScheduleActivities(object):
             })
 
             if deleted_resource.deleted_count > 0:
-                return SuccessMessage.SCHEDULE["DELETED"]
+                return SuccessMessage.SCHEDULE["SINGLE_DELETED"]
             else:
                 return SuccessMessage.SCHEDULE["EMPTY_DELETE"]
 
         except:
             return ErrorMessage.SCHEDULE["DELETE_ERROR"]
-
-
-    def update_schedule_data(self):
-        if self.is_valid_format() is False:
-            return response.set_error(self.errors)
-
-        if self.is_valid_activity_format() is False:
-            return response.set_error(self.errors)
-        
-        date_obj = date_time.convert_datetime_str_to_obj(self.activity_data["date"])
-
-        updated_data_params = { 
-            "date": date_time.convert_datetime_str_to_obj(self.activity_data["date"]),
-            "user_id": self.activity_data["user_id"]
-        }
-
-        data_to_update = dict(self.activity_data, **updated_data_params)
-
-        updated_data = self.collection.find_one_and_update(
-            updated_data_params,
-            {"$set": data_to_update },
-            upsert=True,
-            return_document=ReturnDocument.AFTER
-        )
-
-        data = {
-            "id": updated_data["_id"]
-        }
-
-        return response.set_ok(data)
-
-
-    def delete_scheduled_data(self):
-        if "activity_id" not in self.request_params:
-            return False
-        
-        if query.object_id_is_valid(self.request_params["activity_id"]) is False:
-            return False
-        
-        self.collection.delete_one({'_id': ObjectId(self.request_params["activity_id"])})
-        return True

@@ -92,6 +92,7 @@ class ScheduleActivities(object):
         documents = [dict(item, **{
             "user_id": ObjectId(self.user_id),
             "last_updated": date_time.get_current_datetime(),
+            "created_at": date_time.get_current_datetime(),
             "date": date_time.convert_datetime_str_to_obj(self.date)
         }) for item in self.activities]
 

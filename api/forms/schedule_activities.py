@@ -1,18 +1,10 @@
 from api.response import ErrorMessage, SuccessMessage
-from flask.globals import request
-from flask.json import jsonify
 from api.utils.json_encoder import JsonEncoder
 # from api.models.schedule import Schedule
-from api.models.url_params import UrlParams
-from api.config import Config, DevelopmentConfig, TestingConfig, ProductionConfig
-from api.utils import date_time, query, response
-from bson.json_util import dumps, loads
+from api.config import Config
+from api.utils import date_time, response
 from bson.objectid import ObjectId
 
-from pymongo.collection import ReturnDocument
-
-import jsonschema
-import datetime
 import json
 
 class ScheduleActivities(object):
@@ -98,6 +90,31 @@ class ScheduleActivities(object):
 
         self.collection.insert(documents)
         return response.set_ok({"message": "Successfully Created."})
+
+
+    def update(self):
+        update_count = 0
+
+        for item in self.items:
+            updated_item = self.collection.find_one_and_update({
+                "_id": ObjectId(item["activity_id"]),
+                "user_id": ObjectId(self.user_id),
+                "name": item["name"]
+            },
+            {
+                "$set": {"details": item["details"]}
+            })
+
+            if updated_item:
+                update_count += 1
+
+        if update_count == 0:
+            message = "No items were updated."
+
+        else:
+            message = "Successfully Updated"
+
+        return response.set_ok({"message": message})
 
 
     def get(self):

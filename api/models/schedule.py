@@ -162,7 +162,7 @@ class ActivitySchema:
         },
     }
 
-    request_body = {
+    insert_params = {
         "type": "object",
         "additionalProperties": False,
         "properties": {
@@ -186,5 +186,72 @@ class ActivitySchema:
                 "type": "string",
                 "format": "date"
             }
+        },
+        "required": ["user_id", "activities", "date"]
+    }
+
+    update_additional_params = {
+        "activity_id": {
+            "type": "string"
         }
+    }
+
+    update_required_fields = default_required_activity_fields + ["activity_id"]
+
+    update_params = {
+        "type": "object",
+        "properties": {
+            "user_id": {
+                "type": "string"
+            },
+            "items": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                    "anyOf": [
+                        {
+                            **by_type["lifting"],
+                            "properties": {
+                                **by_type["lifting"]["properties"],
+                                **update_additional_params
+                            },
+                            "required": update_required_fields
+                        },
+                        {
+                            **by_type["running"],
+                            "properties": {
+                                **by_type["running"]["properties"],
+                                **update_additional_params
+                            },
+                            "required": update_required_fields
+                        },
+                        {
+                            **by_type["walking"],
+                            "properties": {
+                                **by_type["walking"]["properties"],
+                                **update_additional_params
+                            },
+                            "required": update_required_fields
+                        },
+                        {
+                            **by_type["cycling"],
+                            "properties": {
+                                **by_type["cycling"]["properties"],
+                                **update_additional_params
+                            },
+                            "required": update_required_fields
+                        },
+                        {
+                            **by_type["swimming"],
+                            "properties": {
+                                **by_type["swimming"]["properties"],
+                                **update_additional_params
+                            },
+                            "required": update_required_fields
+                        }
+                    ]
+                }
+            },
+        },
+        "required": ["user_id", "items"]
     }

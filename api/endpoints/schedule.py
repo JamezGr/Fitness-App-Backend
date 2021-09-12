@@ -14,7 +14,7 @@ from webargs.flaskparser import use_args
 blueprint = Blueprint(name="schedule_endpoint", import_name=__name__)
 
 @blueprint.route("schedule", methods=['POST'])
-@expects_json(ActivitySchema.request_body)
+@expects_json(ActivitySchema.insert_params)
 # @jwt_required
 def create_user_schedule():
     request_body = request.json
@@ -35,6 +35,27 @@ def create_user_schedule():
         return jsonify(error), error["status"]
 
     request_response = ScheduleActivities(request_body).create()
+
+    return jsonify(request_response), request_response["status"]
+
+
+@blueprint.route("schedule", methods=['PUT'])
+@expects_json(ActivitySchema.update_params)
+def update_user_schedule():
+    request_body = request.json
+
+    is_user_id_valid = query.object_id_is_valid(request_body["user_id"])
+    is_activity_ids_valid = all(query.object_id_is_valid(item["activity_id"]) for item in request_body["items"])
+
+    if is_user_id_valid is False:
+        request_response = response.set_error(["Invalid user_id passed."])
+        return jsonify(request_response), request_response["status"]
+
+    if is_activity_ids_valid is False:
+        request_response = response.set_error(["Invalid activity_id passed."])
+        return jsonify(request_response), request_response["status"]
+
+    request_response = ScheduleActivities(request_body).update() 
 
     return jsonify(request_response), request_response["status"]
 

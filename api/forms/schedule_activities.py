@@ -9,19 +9,13 @@ import json
 
 class ScheduleActivities(object):
     def __init__(self, request_data):
-        # self.activity_data = activity_data
-        # self.errors = []
-        # self.request_params = activity_data.get("request_params", None)
         self.user_id = request_data.get("user_id", None)
         self.activity_id = request_data.get("activity_id", None)
         self.date = request_data.get("date", None)
         self.start_date = request_data.get("start_date", None)
         self.end_date = request_data.get("end_date", None)
-        self.activities = request_data.get("activities", None)
 
-        # activities as object ids
         self.items = request_data.get("items", None)
-
         self.return_details = request_data.get("returnDetails", None)
         self.return_ids = request_data.get("returnIdsOnly", None)
         self.return_summary = request_data.get("returnSummary", None)
@@ -86,10 +80,11 @@ class ScheduleActivities(object):
             "last_updated": date_time.get_current_datetime(),
             "created_at": date_time.get_current_datetime(),
             "date": date_time.convert_datetime_str_to_obj(self.date)
-        }) for item in self.activities]
+        }) for item in self.items]
 
-        self.collection.insert(documents)
-        return response.set_ok({"message": "Successfully Created."})
+        created_items = self.collection.insert_many(documents)
+        item_ids = [str(id) for id in created_items.inserted_ids]
+        return response.set_ok(item_ids)
 
 
     def update(self):

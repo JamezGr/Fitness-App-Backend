@@ -169,7 +169,7 @@ class ActivitySchema:
             "user_id": {
                 "type": "string"
             },
-            "activities": {
+            "items": {
                 "type": "array",
                 "minItems": 1,
                 "items": {
@@ -187,7 +187,7 @@ class ActivitySchema:
                 "format": "date"
             }
         },
-        "required": ["user_id", "activities", "date"]
+        "required": ["user_id", "items", "date"]
     }
 
     update_additional_params = {

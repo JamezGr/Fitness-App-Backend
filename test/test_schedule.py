@@ -1,150 +1,105 @@
-import unittest
-import pytest
-
-from api.forms.register_user import RegisterForm
 from api.forms.schedule_activities import ScheduleActivities
-from api.models.user import User
-from api.utils.query import object_id_is_valid
-from test.helpers.schedule import test_valid_schedule_data, test_valid_request_params, test_invalid_schedule_data
+from test.data.schedule import post_request_body, get_request_params
 
-""" Should Create Activity in Schedule with Valid Request Body """
-def test_create_activity():
-    updated_activity_data = ScheduleActivities(test_valid_schedule_data).update_schedule_data()
-    
-    activity_found = ScheduleActivities(test_valid_request_params).get()
-    activity_id = updated_activity_data["data"]["id"]
+import unittest
 
-    updated_params = {
-        "request_params": {
-            "activity_id": str(activity_id)
+class TestSchedule(unittest.TestCase):
+    def create_activities(self):
+        return ScheduleActivities(post_request_body).create()
+
+
+    def delete_activities(self, items):
+        delete_params = {
+            "items": items,
+            "user_id": post_request_body["user_id"]
         }
-    }
 
-    ScheduleActivities(updated_params).delete_scheduled_data()
-    assert activity_found["data"][0]["activities"] == test_valid_schedule_data["activities"]
+        return ScheduleActivities(delete_params).delete_many()
 
-""" Should not create activity with invalid Request Body """
-def test_create_activity_with_invalid_request_body():
-    created_activity = ScheduleActivities(test_invalid_schedule_data).update_schedule_data()
 
-    assert created_activity["status"] == 400
+    def test_create_activities(self):
+        inserted_activities = self.create_activities()
+        self.delete_activities(inserted_activities["data"])
 
-""" Should Fetch Data by Activity Id """
-def test_fetch_data_by_activity_id():
-    activity_data = ScheduleActivities(test_valid_schedule_data).update_schedule_data()
-    activity_id_to_find = str(activity_data["data"]["id"])
+        self.assertEqual(len(inserted_activities["data"]), len(post_request_body["items"]))
 
-    test_params = test_valid_request_params
-    test_params["request_params"]["activity_id"] = activity_id_to_find
 
-    activity_data_to_find = ScheduleActivities(test_params).get()
+    def test_get_activity_by_id(self):
+        inserted_activities = self.create_activities()
 
-    ScheduleActivities(test_params).delete_scheduled_data()
-    assert activity_id_to_find == activity_data_to_find["data"]["_id"]["$oid"]
+        activity_id = inserted_activities["data"][0]
 
-""" Should Delete Scheduled Data Created """
-def test_delete_activity():
-    updated_activity_data = ScheduleActivities(test_valid_schedule_data).update_schedule_data()
-    
-    activity_id = updated_activity_data["data"]["id"]
-
-    updated_params = {
-        "request_params": {
-            "activity_id": str(activity_id)
+        get_params = {
+            "user_id": post_request_body["user_id"],
+            "activity_id": activity_id
         }
-    }
 
-    ScheduleActivities(updated_params).delete_scheduled_data()
-    activity_found = ScheduleActivities(test_valid_request_params).get()
+        activities_found = ScheduleActivities(get_params).get()
+        self.delete_activities(inserted_activities["data"])
 
-    assert len(activity_found["data"]) == 0
-    assert activity_found["status"] == 200
+        self.assertEqual(activities_found["status"], 200)
 
-""" Should Fetch Data by Activity Id """
-def test_get_activity_by_id():
-    updated_activity_data = ScheduleActivities(test_valid_schedule_data).update_schedule_data()
+
+    def test_get_activity_by_date_range(self):
+        inserted_activities = self.create_activities()
+        date_to_find = post_request_body["date"]
+
+        get_params = {
+            "user_id": post_request_body["user_id"],
+            "start_date": date_to_find,
+            "end_date": date_to_find,
+        }
+
+        activities_found = ScheduleActivities(get_params).get()
+        self.delete_activities(inserted_activities["data"])
+
+        self.assertEqual(activities_found["status"], 200)
+        self.assertEqual(len(activities_found["data"]), len(post_request_body["items"]))
+
     
-    activity_found = ScheduleActivities(test_valid_request_params).get()
-    activity_id = updated_activity_data["data"]["id"]
+    def test_delete_activity_by_id(self):
+        inserted_activities = self.create_activities()
+        activity_id = inserted_activities["data"][0]
 
-    updated_params = test_valid_request_params
-    updated_params["request_params"]["activity_id"] = str(activity_id)
-    updated_params["request_params"]["user_id"] = test_valid_schedule_data["user_id"]
+        delete_params = {
+            "user_id": post_request_body["user_id"],
+            "activity_id": activity_id,
+            **get_request_params
+        }
 
-    activity_to_find = ScheduleActivities(updated_params).get()
-    ScheduleActivities(updated_params).delete_scheduled_data()
+        ScheduleActivities(delete_params).delete_by_id()
+        activities_found = ScheduleActivities(delete_params).get()
 
-    assert activity_to_find["data"]["_id"]["$oid"] == str(activity_id)
+        self.assertEqual(activities_found["data"], {})
 
-""" Should not Fetch Data with Invalid Activity Id Type """
-def test_check_invalid_activity_id_type():
-    test_params = test_valid_request_params
-    test_params["request_params"]["activity_id"] = "None"
-    test_params["request_params"]["user_id"] = test_valid_schedule_data["user_id"]
 
-    activity_to_find = ScheduleActivities(test_params).get()
+    def test_delete_many_activities(self):
+        inserted_activity_1 = self.create_activities()
+        inserted_activity_2 = self.create_activities()
 
-    assert activity_to_find["data"] == []
+        activity_id_1 = inserted_activity_1["data"][0]
+        activity_id_2 = inserted_activity_2["data"][0]
 
-""" Should not allow request where End Date is before Start Date """
-def test_check_invalid_date_range():
-    test_params = test_valid_request_params
-    test_params["request_params"]["end_date"] = "2021-02-01"
+        self.delete_activities([activity_id_1, activity_id_2])
 
-    response = ScheduleActivities(test_params).get()
+        params_1 = {
+            "user_id": post_request_body["user_id"],
+            "activity_id": activity_id_1
+        }
 
-    assert response["status"] == 400
+        params_2 = {
+            **params_1,
+            "activity_id": activity_id_2
+        }
 
-""" Should return Activity Ids only if returnIdsOnly set to true """
-def test_return_ids_only():
-    activity_data = ScheduleActivities(test_valid_schedule_data).update_schedule_data()
-    activity_id_to_find = str(activity_data["data"]["id"])
+        activity_found_1 = ScheduleActivities(params_1).get()
+        activity_found_2 = ScheduleActivities(params_2).get()
 
-    test_params = test_valid_request_params
-    test_params["request_params"]["activity_id"] = activity_id_to_find
-    test_params["request_params"]["returnIdsOnly"] = True
-    test_params["request_params"]["returnSummaryOnly"] = False
+        self.assertEqual(activity_found_1["data"], {})
+        self.assertEqual(activity_found_2["data"], {})
 
-    activity_data_to_find = ScheduleActivities(test_params).get()
 
-    ScheduleActivities(test_params).delete_scheduled_data()
-    id_list_valid = all(object_id_is_valid(id) for id in activity_data_to_find["data"])
+    # def test_update_activities(self):
 
-    assert id_list_valid == True
-
-""" Should return Summary of Activities if returnSummary set to true """
-def test_return_summary():
-    activity_data = ScheduleActivities(test_valid_schedule_data).update_schedule_data()
-    activity_id_to_find = str(activity_data["data"]["id"])
-
-    test_params = test_valid_request_params
-    test_params["request_params"]["activity_id"] = activity_id_to_find
-    test_params["request_params"]["returnIdsOnly"] = False
-    test_params["request_params"]["returnDetails"] = False
-    test_params["request_params"]["returnSummary"] = True
-
-    activity_data_to_find = ScheduleActivities(test_params).get()
-    response_data = activity_data_to_find["data"]
-
-    ScheduleActivities(test_params).delete_scheduled_data()
-    summary_is_valid = "details" not in response_data["activities"]
-    assert summary_is_valid == True
-
-""" Should return Details of Activities if returnDetails set to true """
-def test_return_details():
-    activity_data = ScheduleActivities(test_valid_schedule_data).update_schedule_data()
-    activity_id_to_find = str(activity_data["data"]["id"])
-
-    test_params = test_valid_request_params
-    test_params["request_params"]["activity_id"] = activity_id_to_find
-    test_params["request_params"]["returnIdsOnly"] = False
-    test_params["request_params"]["returnDetails"] = True
-    test_params["request_params"]["returnSummary"] = False
-
-    activity_data_to_find = ScheduleActivities(test_params).get()
-    response_data = activity_data_to_find["data"]
-
-    ScheduleActivities(test_params).delete_scheduled_data()
-    details_exists = all("details" in data for data in response_data["activities"])
-
-    assert details_exists == True
+if __name__ == '__main__':
+    unittest.main()

@@ -4,8 +4,8 @@ import calendar
 
 from datetime import datetime
 
-from api.config import Config, DevelopmentConfig, TestingConfig, ProductionConfig
 from api.utils import user_auth
+from api.utils.database import db
 
 class RegisterForm(object):
 
@@ -32,6 +32,7 @@ class RegisterForm(object):
         self.user = form_data.user
         self.password = form_data.password
         self.confirm_password = form_data.confirm_password
+        self.collection = db.logins
     
     def validate(self):
         user_settings = RegisterForm.USER_SETTINGS
@@ -131,11 +132,8 @@ class RegisterForm(object):
         return True
 
     def check_username_exists(self):
-        db_cluster_collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["logins"]]
-        emails_found = db_cluster_collection.find({"email": {"$regex": '^' + self.email + '$'}})
-        users_found = db_cluster_collection.find({"user": {"$regex": '^' + self.user + '$'}})
-
-        print(emails_found.count(), users_found.count())
+        emails_found = self.collection.find({"email": {"$regex": '^' + self.email + '$'}})
+        users_found = self.collection.find({"user": {"$regex": '^' + self.user + '$'}})
 
         if emails_found.count() > 0 or users_found.count() > 0:
             return True
@@ -144,12 +142,10 @@ class RegisterForm(object):
             return False
 
     def create_username(self):
-        db_cluster_collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["logins"]]
-
         password = self.password
         hashed_password = user_auth.hash_password(password)
 
-        db_cluster_collection.insert_one({
+        self.collection.insert_one({
             "email": self.email,
             "user": self.user,
             "password": hashed_password,

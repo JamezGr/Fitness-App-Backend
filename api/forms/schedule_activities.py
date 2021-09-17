@@ -1,7 +1,6 @@
 from api.response import ErrorMessage, SuccessMessage
 from api.utils.json_encoder import JsonEncoder
-# from api.models.schedule import Schedule
-from api.config import Config
+from api.utils.database import db
 from api.utils import date_time, response
 from bson.objectid import ObjectId
 
@@ -20,7 +19,7 @@ class ScheduleActivities(object):
         self.return_ids = request_data.get("returnIdsOnly", None)
         self.return_summary = request_data.get("returnSummary", None)
 
-        self.collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["user_schedule"]]
+        self.collection = db.user_schedule
 
     def get_surpressed_fields(self):
         surpressed_fields = {

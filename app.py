@@ -28,19 +28,15 @@ app.config['MONGO_URI'] = Config.DB_CONNECTION_STRING
 jwt = JWTManager(app)
 mongo.init_app(app)
 
-# cors = CORS()
-# cors.init_app(app, supports_credentials=True, resources={r"/api/*": {"origins": "*"}})
-
 CORS(app, supports_credentials=True)
 
-# No cacheing at all for API endpoints.
-@app.after_request
-def add_headers(response):
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
+# @app.after_request
+# def add_headers(response):
+#     response.headers.add('Access-Control-Allow-Origin', '*')
+#     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+#     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
     
-    return response
+#     return response
 
 @app.errorhandler(405)
 def method_not_allowed(e):

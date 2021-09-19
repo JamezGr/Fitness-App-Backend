@@ -28,8 +28,9 @@ app.config['MONGO_URI'] = Config.DB_CONNECTION_STRING
 jwt = JWTManager(app)
 mongo.init_app(app)
 
+api = Blueprint('api', __name__, url_prefix="/")
 cors = CORS()
-cors.init_app(app, supports_credentials=True, resources={r"/v1/*": {"origins": "*"}})
+cors.init_app(api, supports_credentials=True, resources={r"/v1/*": {"origins": "*"}})
 
 # CORS(app, resources={
 #     r"/*": {
@@ -37,12 +38,6 @@ cors.init_app(app, supports_credentials=True, resources={r"/v1/*": {"origins": "
 #     }
 # })
 
-app.register_blueprint(default.blueprint, url_prefix="/")
-app.register_blueprint(auth.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
-app.register_blueprint(user.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
-app.register_blueprint(uploads.blueprint, url_prefix="/")
-app.register_blueprint(schedule.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
-app.register_blueprint(routes.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
 
 # No cacheing at all for API endpoints.
 @app.after_request
@@ -62,6 +57,14 @@ def my_expired_token_callback():
     error_message = ErrorMessage.EXPIRED_TOKEN
 
     return jsonify(error_message), 401
+
+
+app.register_blueprint(default.blueprint, url_prefix="/")
+app.register_blueprint(auth.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
+app.register_blueprint(user.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
+app.register_blueprint(uploads.blueprint, url_prefix="/")
+app.register_blueprint(schedule.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
+app.register_blueprint(routes.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
     
 if __name__ == "__main__":
     app.run(debug=True)

@@ -19,7 +19,7 @@ class Config:
     SECRET_KEY = b"uP0tGp(.d:J:Uo}<AoeK|6r`XJ-*S0"
     DEBUG = False
 
-    ACCESS_TOKEN_EXPIRY = timedelta(minutes=15)
-    REFRESH_TOKEN_EXPIRY = timedelta(weeks=2)
+    ACCESS_TOKEN_EXPIRY = timedelta(weeks=2)
+    REFRESH_TOKEN_EXPIRY = timedelta(weeks=4)
 
     ENDPOINT_PREFIX = "/api"

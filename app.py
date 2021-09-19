@@ -15,27 +15,27 @@ from api.endpoints import (
     schedule,
 )
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Blueprint
 from flask_cors import CORS
 
 from flask_jwt_extended import JWTManager
 
-URI_CLUSTER = Config.DB_CONNECTION_STRING
-DB_CLUSTER = URI_CLUSTER[Config.DB_CLUSTER_NAME]
-
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = Config.SECRET_KEY
 app.config['CORS_HEADERS'] = 'Content-Type'
-app.config['MONGO_URI'] = Config.DB_CONNECTION_URI
+app.config['MONGO_URI'] = Config.DB_CONNECTION_STRING
 
 jwt = JWTManager(app)
 mongo.init_app(app)
 
-CORS(app, resources={
-    r"/*": {
-        "origins": "*"
-    }
-})
+cors = CORS()
+cors.init_app(app, supports_credentials=True, resources={r"/v1/*": {"origins": "*"}})
+
+# CORS(app, resources={
+#     r"/*": {
+#         "origins": "*"
+#     }
+# })
 
 app.register_blueprint(default.blueprint, url_prefix="/")
 app.register_blueprint(auth.blueprint, url_prefix=Config.ENDPOINT_PREFIX)

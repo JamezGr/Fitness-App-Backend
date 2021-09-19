@@ -28,9 +28,8 @@ app.config['MONGO_URI'] = Config.DB_CONNECTION_STRING
 jwt = JWTManager(app)
 mongo.init_app(app)
 
-api = Blueprint('api', __name__, url_prefix="/")
 cors = CORS()
-cors.init_app(api, supports_credentials=True, resources={r"/*": {"origins": "*"}})
+cors.init_app(app, supports_credentials=True, resources={r"/api/*": {"origins": "*"}})
 
 # CORS(app, resources={
 #     r"/*": {
@@ -40,7 +39,7 @@ cors.init_app(api, supports_credentials=True, resources={r"/*": {"origins": "*"}
 
 # No cacheing at all for API endpoints.
 @app.after_request
-def add_header(response):
+def add_headers(response):
     response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')

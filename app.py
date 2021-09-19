@@ -30,14 +30,13 @@ mongo.init_app(app)
 
 api = Blueprint('api', __name__, url_prefix="/")
 cors = CORS()
-cors.init_app(api, supports_credentials=True, resources={r"/v1/*": {"origins": "*"}})
+cors.init_app(api, supports_credentials=True, resources={r"/*": {"origins": "*"}})
 
 # CORS(app, resources={
 #     r"/*": {
 #         "origins": "*"
 #     }
 # })
-
 
 # No cacheing at all for API endpoints.
 @app.after_request

@@ -45,7 +45,7 @@ app.register_blueprint(schedule.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
 app.register_blueprint(routes.blueprint, url_prefix=Config.ENDPOINT_PREFIX)
 
 # No cacheing at all for API endpoints.
-@app.before_request
+@app.after_request
 def add_header(response):
     response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')

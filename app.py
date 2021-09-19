@@ -28,14 +28,14 @@ app.config['MONGO_URI'] = Config.DB_CONNECTION_STRING
 jwt = JWTManager(app)
 mongo.init_app(app)
 
-cors = CORS()
-cors.init_app(app, supports_credentials=True, resources={r"/api/*": {"origins": "*"}})
+# cors = CORS()
+# cors.init_app(app, supports_credentials=True, resources={r"/api/*": {"origins": "*"}})
 
-# CORS(app, resources={
-#     r"/*": {
-#         "origins": "*"
-#     }
-# })
+CORS(app, resources={
+    r"/*": {
+        "origins": "*"
+    }
+})
 
 # No cacheing at all for API endpoints.
 @app.after_request

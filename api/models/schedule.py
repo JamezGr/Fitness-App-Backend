@@ -191,12 +191,12 @@ class ActivitySchema:
     }
 
     update_additional_params = {
-        "activity_id": {
+        "id": {
             "type": "string"
         }
     }
 
-    update_required_fields = default_required_activity_fields + ["activity_id"]
+    update_required_fields = default_required_activity_fields + ["id"]
 
     update_params = {
         "type": "object",

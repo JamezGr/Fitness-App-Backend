@@ -91,7 +91,7 @@ class ScheduleActivities(object):
 
         for item in self.items:
             updated_item = self.collection.find_one_and_update({
-                "_id": ObjectId(item["activity_id"]),
+                "_id": ObjectId(item["id"]),
                 "user_id": ObjectId(self.user_id),
                 "name": item["name"]
             },

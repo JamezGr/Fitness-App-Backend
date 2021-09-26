@@ -45,7 +45,7 @@ def update_user_schedule():
     request_body = request.json
 
     is_user_id_valid = query.object_id_is_valid(request_body["user_id"])
-    is_activity_ids_valid = all(query.object_id_is_valid(item["activity_id"]) for item in request_body["items"])
+    is_activity_ids_valid = all(query.object_id_is_valid(item["id"]) for item in request_body["items"])
 
     if is_user_id_valid is False:
         request_response = response.set_error(["Invalid user_id passed."])

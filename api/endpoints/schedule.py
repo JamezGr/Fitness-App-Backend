@@ -15,7 +15,7 @@ blueprint = Blueprint(name="schedule_endpoint", import_name=__name__)
 
 @blueprint.route("schedule", methods=['POST'])
 @expects_json(ActivitySchema.insert_params)
-# @jwt_required
+@jwt_required
 def create_user_schedule():
     request_body = request.json
 
@@ -61,7 +61,7 @@ def update_user_schedule():
 
 
 @blueprint.route("schedule", methods=['GET'])
-# @jwt_required
+@jwt_required
 @use_args({
     "user_id": fields.Str(
         required=True,
@@ -89,7 +89,7 @@ def get_activities(request_params):
 
 
 @blueprint.route("schedule", methods=['DELETE'])
-# @jwt_required
+@jwt_required
 @use_args({
     "user_id": fields.Str(
         required=True,

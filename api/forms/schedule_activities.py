@@ -19,6 +19,7 @@ class ScheduleActivities(object):
         self.return_details = request_data.get("returnDetails", None)
         self.return_ids = request_data.get("returnIdsOnly", None)
         self.return_summary = request_data.get("returnSummary", None)
+        self.return_comments = request_data.get("returnComments", None)
 
         self.collection = Config.DB_CLUSTER[Config.COLLECTION_NAMES["user_schedule"]]
 
@@ -34,14 +35,17 @@ class ScheduleActivities(object):
             surpressed_fields["name"] = 0
             surpressed_fields["details"] = 0
             surpressed_fields["last_updated"] = 0
+            surpressed_fields["comments"] = 0
             return surpressed_fields
+
+        if self.return_comments is False:
+            surpressed_fields["comments"] = 0
 
         if self.return_details is True:
             return surpressed_fields
 
         if self.return_details is False:
             surpressed_fields["details"] = 0
-
 
         if self.return_summary is True:
             surpressed_fields["details"] = 0

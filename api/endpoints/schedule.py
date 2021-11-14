@@ -78,7 +78,8 @@ def update_user_schedule():
     ),
     "returnDetails": fields.Bool(missing=True),
     "returnIdsOnly": fields.Bool(missing=False),
-    "returnSummary": fields.Bool(missing=False)
+    "returnSummary": fields.Bool(missing=False),
+    "returnComments": fields.Bool(missing=True),
     })
 def get_activities(request_params):
     activities = ScheduleActivities(request_params)

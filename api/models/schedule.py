@@ -21,7 +21,7 @@ class ActivitySchema:
         }
     }
 
-    default_required_activity_fields = ["name", "details"]
+    default_required_activity_fields = ["name", "details", "comments"]
 
     by_type = {
         "lifting": {
@@ -61,6 +61,10 @@ class ActivitySchema:
                         "required": ["intensity", "exercise", "weight", "sets", "reps"]
                     }
                 },
+                "comments": {
+                    "type": "string",
+                    "maxLength": 500
+                }
             },
             "required": default_required_activity_fields
         },
@@ -84,6 +88,10 @@ class ActivitySchema:
                         "required": ["intensity", "distance", "time"]
                     }
                 },
+                "comments": {
+                    "type": "string",
+                    "maxLength": 500
+                }
             },
             "required": default_required_activity_fields
         },
@@ -105,6 +113,10 @@ class ActivitySchema:
                             **distance_time_schema
                         },
                         "required": ["intensity", "distance", "time"]
+                    },
+                    "comments": {
+                        "type": "string",
+                        "maxLength": 500
                     }
                 },
             },
@@ -130,6 +142,10 @@ class ActivitySchema:
                         "required": ["intensity", "distance", "time"]
                     }
                 },
+                "comments": {
+                    "type": "string",
+                    "maxLength": 500
+                }
             },
             "required": default_required_activity_fields
         },
@@ -157,6 +173,10 @@ class ActivitySchema:
                         "required": ["intensity", "distance", "time", "stroke"]
                     }
                 },
+                "comments": {
+                    "type": "string",
+                    "maxLength": 500
+                }
             },
             "required": default_required_activity_fields
         },
@@ -185,7 +205,7 @@ class ActivitySchema:
             "date": {
                 "type": "string",
                 "format": "date"
-            }
+            },
         },
         "required": ["user_id", "items", "date"]
     }
@@ -193,6 +213,10 @@ class ActivitySchema:
     update_additional_params = {
         "activity_id": {
             "type": "string"
+        },
+        "comments": {
+            "type": "string",
+            "maxLength": 500
         }
     }
 

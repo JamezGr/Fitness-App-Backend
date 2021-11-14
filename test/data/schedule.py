@@ -11,7 +11,8 @@ post_request_body = {
             "weight": 100,
             "reps": 1,
             "sets": 1
-        }]
+        }],
+        "comments": "unit tests❗❗"
     }]
 }
 
@@ -19,4 +20,5 @@ get_request_params = {
     "returnDetails": True,
     "returnIdsOnly": False,
     "returnSummary": False,
+    "returnComments": False,
 }

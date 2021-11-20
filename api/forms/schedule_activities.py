@@ -100,7 +100,10 @@ class ScheduleActivities(object):
                 "name": item["name"]
             },
             {
-                "$set": {"details": item["details"]}
+                "$set": {
+                    "details": item["details"],
+                    "comments": item["comments"]
+                }
             })
 
             if updated_item:

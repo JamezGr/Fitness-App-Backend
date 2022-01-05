@@ -48,7 +48,7 @@ class ScheduleActivities(object):
 
 
     def upload_attachment(self):
-        activity = self.get_by_id()
+        activity = self.get_activity_by_id()
         file = self.file
 
         if activity is None:
@@ -124,7 +124,7 @@ class ScheduleActivities(object):
         return int(attachments_count)
 
 
-    def get_by_id(self):
+    def get_activity_by_id(self):
         activity_found = self.collection.find_one({
                 "_id": ObjectId(self.activity_id),
                 "user_id": ObjectId(self.user_id)
@@ -194,7 +194,7 @@ class ScheduleActivities(object):
                 return response.set_error(["start_date is after end_date"])
 
         if self.activity_id is not None:
-            data = self.get_by_id()
+            data = self.get_activity_by_id()
 
         else:
             data = self.get_by_date_range()

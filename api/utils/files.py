@@ -3,6 +3,7 @@ from bson.objectid import ObjectId
 
 from gridfs import GridFS
 from gridfs.errors import NoFile
+from marshmallow.fields import String
 from api.utils.database import mongo
 
 ## Extension Names for File Uploads 
@@ -27,6 +28,20 @@ def get_file_by_id(id):
     
     except NoFile:
         return None
+
+
+def get_request_file_size(file):
+    file.seek(0, os.SEEK_END)
+    file_size = file.tell()
+
+    return file_size
+
+# upload file to grid fs
+# returns oid of saved file
+def save_file(file, metadata):
+    saved_file = mongo.save_file(file.filename, file, kwargs=metadata)
+    return saved_file
+
 
 def delete_file(id):
     storage = GridFS(mongo.db, "fs")

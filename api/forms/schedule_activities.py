@@ -1,7 +1,11 @@
+from api.models.schedule import ActivitySchema
 from api.response import ErrorMessage, SuccessMessage
+from api.utils import cache
+from api.utils.files import save_file
 from api.utils.json_encoder import JsonEncoder
-from api.utils.database import db
+from api.utils.database import db, file_db
 from api.utils import date_time, response
+from api.utils.database import mongo
 from bson.objectid import ObjectId
 
 import json
@@ -20,7 +24,58 @@ class ScheduleActivities(object):
         self.return_summary = request_data.get("returnSummary", None)
         self.return_comments = request_data.get("returnComments", None)
 
+        self.file = request_data.get("file", None)
         self.collection = db.user_schedule
+
+        self.attachments_count_key_suffix = "attachments_count"
+
+
+    def get_attachments_count_cache_key(self):
+        return self.activity_id + "_" + self.attachments_count_key_suffix
+
+
+    def update_attachments_count_cached_value(self, count):
+        cache.set_value(self.get_attachments_count_cache_key(), value=count)
+
+
+    def get_attachments_count_cached_value(self):
+        cached_value = cache.get_value(self.get_attachments_count_cache_key())
+
+        if cached_value is not None:
+            return int(cached_value)
+
+        return cached_value
+
+
+    def upload_attachment(self):
+        activity = self.get_by_id()
+        file = self.file
+
+        if activity is None:
+            print("No activity found for provided activity_id")
+            return response.set_ok({ "message": "No activity found for provided activity_id" })
+
+
+        if file.content_type not in ActivitySchema.allowed_attachment_files_by_type[activity["name"]]:
+            print("File type provided not allowed.")
+            return response.set_error({ "message": "Invalid File Type Provided." }, status=400)
+
+        metadata = {
+            "activity_id": self.activity_id,
+            "user_id": self.user_id,
+        }
+
+        attachments_count = self.get_attachments_count()
+
+        if attachments_count >= ActivitySchema.max_attachments:
+            self.update_attachments_count_cached_value(attachments_count)
+            return response.set_ok({ "message": "No attachments uploaded. Maximum number of attachments uploaded have been reached." })
+
+        save_file(file, metadata=metadata)
+        self.update_attachments_count_cached_value(attachments_count + 1)
+
+        return response.set_ok({ "message": "ok" })
+
 
     def get_surpressed_fields(self):
         surpressed_fields = {
@@ -52,6 +107,21 @@ class ScheduleActivities(object):
             return surpressed_fields
 
         return surpressed_fields
+
+
+    # get number of attachments by user id and activity id
+    def get_attachments_count(self):
+        print("fetching cache", self.get_attachments_count_cached_value())
+        if self.get_attachments_count_cached_value() is not None:
+            attachments_count = self.get_attachments_count_cached_value()
+
+        else:
+            attachments_count = file_db.fs.files.count({
+                "kwargs.user_id": self.user_id,
+                "kwargs.activity_id": self.activity_id
+            })
+
+        return int(attachments_count)
 
 
     def get_by_id(self):

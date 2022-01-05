@@ -1,5 +1,29 @@
+from api.file_types import FileType
+
 class ActivitySchema:
+    # 10mb
+    max_attachment_size = 10000000
+    max_attachments = 10
+
     intensity_types = ["very_light", "light", "moderate", "hard", "maximum"]
+
+    default_allowed_attachment_files = [
+        FileType.jpg,
+        FileType.png,
+        FileType.gif,
+        FileType.mp4,
+        FileType.pdf
+    ]
+
+    map_route_files = [FileType.gpx]
+
+    allowed_attachment_files_by_type = {
+        "lifting": default_allowed_attachment_files,
+        "swimming": default_allowed_attachment_files,
+        "running": default_allowed_attachment_files + map_route_files,
+        "cycling": default_allowed_attachment_files + map_route_files,
+        "walking": default_allowed_attachment_files + map_route_files,
+    }
 
     default_activity_schema = {
         "intensity": {

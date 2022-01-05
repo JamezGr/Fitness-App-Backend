@@ -10,7 +10,8 @@ env.read_env()
 class Config:
     DB_USERNAME = env("DB_USERNAME")
     DB_PASSWORD = env("DB_PASS")
-    DB_NAME = env("DB_NAME")
+    MAIN_DB_NAME = env("MAIN_DB_NAME")
+    FILE_DB_NAME = env("FILE_DB_NAME")
     DB_URI = env("DB_URI")
 
     REDIS_URL = env("REDISTOGO_URL")

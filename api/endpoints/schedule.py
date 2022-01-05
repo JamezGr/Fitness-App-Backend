@@ -1,3 +1,5 @@
+import os
+from werkzeug.exceptions import BadRequestKeyError
 from api.models.schedule import ActivitySchema
 from api.utils import date_time, query, response
 from api.response import ErrorMessage, SuccessMessage
@@ -11,7 +13,72 @@ from flask_expects_json import expects_json
 from webargs import fields, validate
 from webargs.flaskparser import use_args
 
+from api.utils.files import get_request_file_size
+
 blueprint = Blueprint(name="schedule_endpoint", import_name=__name__)
+
+@blueprint.route("schedule/attachments", methods=['POST'])
+# @jwt_required
+def upload_attachment():
+    if "file" not in request.files:
+        return jsonify({"error": "Expected 'file' to be provided"}), 400
+
+    if "activity_id" not in request.form:
+        return jsonify({"error": "Expected 'activity_id' to be provided"}), 400
+
+    file = request.files["file"]
+    file_size = get_request_file_size(file)
+
+    activity_id = request.form["activity_id"]
+    user_id = request.form["user_id"]
+
+    if file_size > ActivitySchema.max_attachment_size:
+        return jsonify({"error": "File size should be smaller than 10MB."}), 400
+
+    request_body = {
+        "file": file,
+        "activity_id": activity_id,
+        "user_id": user_id,
+    }
+
+    response = ScheduleActivities(request_body).upload_attachment()
+
+    return jsonify(response), response["status"]
+
+
+@blueprint.route("schedule/{activity_id}/attachments", methods=['GET'])
+# @jwt_required
+def get_attachments_list_by_activity_id():
+    print("getting list of attachments for activity id")
+    return jsonify({"data": "cool beans"}), 200
+
+
+@blueprint.route("schedule/attachments/{attachment_id}", methods=['GET'])
+# @jwt_required
+def get_attachment_by_id():
+    print("getting attachment by id")
+    return jsonify({"data": "cool beans"}), 200
+
+
+@blueprint.route("schedule/attachments", methods=['DELETE'])
+# @jwt_required
+@use_args({
+    "attachment_ids": fields.List(
+        fields.String(),
+        required=False,
+        missing=None,
+        validate=lambda items: all(query.object_id_is_valid(item) for item in items)
+    ),
+    "user_id": fields.Str(
+        required=True,
+        validate=lambda id: query.object_id_is_valid(id)
+    )
+})
+def delete_attachment_by_id(request_params):
+    print(request_params)
+    print("deleting attachment by id")
+    return jsonify({"data": "cool beans"}), 200
+
 
 @blueprint.route("schedule", methods=['POST'])
 @expects_json(ActivitySchema.insert_params)

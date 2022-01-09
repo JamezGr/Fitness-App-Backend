@@ -13,11 +13,12 @@ from flask_expects_json import expects_json
 from webargs import fields, validate
 from webargs.flaskparser import use_args
 
-from api.utils.files import get_request_file_size
+from api.utils.files import get_request_file_size, limit_content_length
 
 blueprint = Blueprint(name="schedule_endpoint", import_name=__name__)
 
 @blueprint.route("schedule/attachments", methods=['POST'])
+@limit_content_length(ActivitySchema.max_attachment_size)
 # @jwt_required
 def upload_attachment():
     if "file" not in request.files:
@@ -26,17 +27,12 @@ def upload_attachment():
     if "activity_id" not in request.form:
         return jsonify({"error": "Expected 'activity_id' to be provided"}), 400
 
-    file = request.files["file"]
-    file_size = get_request_file_size(file)
 
     activity_id = request.form["activity_id"]
     user_id = request.form["user_id"]
 
-    if file_size > ActivitySchema.max_attachment_size:
-        return jsonify({"error": "File size should be smaller than 10MB."}), 400
-
     request_body = {
-        "file": file,
+        "file": request.files["file"],
         "activity_id": activity_id,
         "user_id": user_id,
     }
@@ -53,11 +49,12 @@ def get_attachments_list_by_activity_id():
     return jsonify({"data": "cool beans"}), 200
 
 
-@blueprint.route("schedule/attachments/{attachment_id}", methods=['GET'])
+@blueprint.route("schedule/attachments/<attachment_filename>", methods=['GET'])
 # @jwt_required
-def get_attachment_by_id():
-    print("getting attachment by id")
-    return jsonify({"data": "cool beans"}), 200
+def get_attachment_by_filename(attachment_filename):
+    print("getting attachment by filename")
+
+    return ScheduleActivities({"attachment_filename": attachment_filename}).get_attachment_by_filename()
 
 
 @blueprint.route("schedule/attachments", methods=['DELETE'])

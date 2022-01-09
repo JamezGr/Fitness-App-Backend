@@ -1,5 +1,9 @@
 import os
+import uuid
 from bson.objectid import ObjectId
+from functools import wraps
+from flask import request, abort
+from werkzeug.utils import secure_filename
 
 from gridfs import GridFS
 from gridfs.errors import NoFile
@@ -39,7 +43,10 @@ def get_request_file_size(file):
 # upload file to grid fs
 # returns oid of saved file
 def save_file(file, metadata):
-    saved_file = mongo.save_file(file.filename, file, kwargs=metadata)
+    # generate random file name
+    filename = str(uuid.uuid4()) + "." + file.filename.split('.')[-1]
+
+    saved_file = mongo.save_file(filename=filename, fileobj=file, kwargs=metadata)
     return saved_file
 
 
@@ -53,3 +60,15 @@ def delete_file(id):
     # not sure what to do here...
     except Exception as e:
         return False
+
+
+def limit_content_length(max_length):
+    def decorator(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            cl = request.content_length
+            if cl is not None and cl > max_length:
+                abort(413)
+            return f(*args, **kwargs)
+        return wrapper
+    return decorator

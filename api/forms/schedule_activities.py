@@ -1,3 +1,6 @@
+from flask.helpers import make_response, send_file
+from flask.json import jsonify
+import gridfs
 from api.models.schedule import ActivitySchema
 from api.response import ErrorMessage, SuccessMessage
 from api.utils import cache
@@ -8,6 +11,7 @@ from api.utils import date_time, response
 from api.utils.database import mongo
 from bson.objectid import ObjectId
 
+import uuid
 import json
 
 class ScheduleActivities(object):
@@ -25,6 +29,8 @@ class ScheduleActivities(object):
         self.return_comments = request_data.get("returnComments", None)
 
         self.file = request_data.get("file", None)
+        self.attachment_id = request_data.get("attachment_id", None)
+        self.attachment_filename = request_data.get("attachment_filename", None)
         self.collection = db.user_schedule
 
         self.attachments_count_key_suffix = "attachments_count"
@@ -71,7 +77,7 @@ class ScheduleActivities(object):
             self.update_attachments_count_cached_value(attachments_count)
             return response.set_ok({ "message": "No attachments uploaded. Maximum number of attachments uploaded have been reached." })
 
-        save_file(file, metadata=metadata)
+        save_file(file=file, metadata=metadata)
         self.update_attachments_count_cached_value(attachments_count + 1)
 
         return response.set_ok({ "message": "ok" })
@@ -130,8 +136,11 @@ class ScheduleActivities(object):
                 "user_id": ObjectId(self.user_id)
             }, self.get_surpressed_fields())
 
-        data = json.loads(json.dumps(activity_found, indent=4, cls=JsonEncoder))
-        return data
+        return json.loads(json.dumps(activity_found, indent=4, cls=JsonEncoder))
+
+
+    def get_attachment_by_filename(self):
+        return mongo.send_file(self.attachment_filename)
 
 
     def get_by_date_range(self):
@@ -143,8 +152,7 @@ class ScheduleActivities(object):
             "user_id": ObjectId(self.user_id)},
         ]}, self.get_surpressed_fields())
 
-        data = json.loads(json.dumps(list(activities_found), indent=4, cls=JsonEncoder))
-        return data
+        return json.loads(json.dumps(list(activities_found), indent=4, cls=JsonEncoder))
 
 
     def create(self):

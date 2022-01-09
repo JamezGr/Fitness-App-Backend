@@ -61,11 +61,12 @@ def get_attachment_by_filename(attachment_filename):
 @blueprint.route("schedule/attachments", methods=['DELETE'])
 # @jwt_required
 @use_args({
-    "attachment_ids": fields.List(
-        fields.String(),
-        required=False,
-        missing=None,
-        validate=lambda items: all(query.object_id_is_valid(item) for item in items)
+    "attachment_filename": fields.Str(
+        required=True
+    ),
+    "activity_id": fields.Str(
+        required=True,
+        validate=lambda id: query.object_id_is_valid(id)
     ),
     "user_id": fields.Str(
         required=True,
@@ -73,9 +74,7 @@ def get_attachment_by_filename(attachment_filename):
     )
 })
 def delete_attachment_by_id(request_params):
-    print(request_params)
-    print("deleting attachment by id")
-    return jsonify({"data": "cool beans"}), 200
+    return ScheduleActivities(request_params).delete_activity_attachment()
 
 
 @blueprint.route("schedule", methods=['POST'])

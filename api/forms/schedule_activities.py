@@ -148,6 +148,25 @@ class ScheduleActivities(object):
 
         return jsonify({"attachments": attachments})
 
+    
+    def delete_activity_attachment(self):
+        deleted_attachment = file_db.fs.files.delete_one({
+            "filename": self.attachment_filename,
+            "kwargs.activity_id": self.activity_id,
+            "kwargs.user_id": self.user_id
+        })
+
+        if deleted_attachment.deleted_count == 0:
+            return jsonify({"message": "No attachment was deleted"}), 304
+
+        attachments_count_cached_value = self.get_attachments_count_cached_value()
+
+        if attachments_count_cached_value is not None and attachments_count_cached_value != 0:
+            self.update_attachments_count_cached_value(attachments_count_cached_value - 1)
+
+        return jsonify({"message": "ok"})
+
+
     def get_by_date_range(self):
         activities_found = self.collection.find({"$and": [
             {"date": {

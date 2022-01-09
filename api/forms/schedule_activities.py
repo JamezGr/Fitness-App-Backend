@@ -143,6 +143,11 @@ class ScheduleActivities(object):
         return mongo.send_file(self.attachment_filename)
 
 
+    def get_attachment_filenames(self):
+        attachments = file_db.fs.files.distinct("filename", {"kwargs.activity_id": self.activity_id})
+
+        return jsonify({"attachments": attachments})
+
     def get_by_date_range(self):
         activities_found = self.collection.find({"$and": [
             {"date": {

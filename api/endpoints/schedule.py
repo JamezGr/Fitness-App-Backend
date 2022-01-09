@@ -42,11 +42,12 @@ def upload_attachment():
     return jsonify(response), response["status"]
 
 
-@blueprint.route("schedule/{activity_id}/attachments", methods=['GET'])
+@blueprint.route("schedule/<activity_id>/attachments", methods=['GET'])
 # @jwt_required
-def get_attachments_list_by_activity_id():
+def get_attachments_list_by_activity_id(activity_id):
     print("getting list of attachments for activity id")
-    return jsonify({"data": "cool beans"}), 200
+    print(activity_id)
+    return ScheduleActivities({"activity_id": activity_id}).get_attachment_filenames()
 
 
 @blueprint.route("schedule/attachments/<attachment_filename>", methods=['GET'])

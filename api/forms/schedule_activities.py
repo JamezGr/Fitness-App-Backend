@@ -69,6 +69,7 @@ class ScheduleActivities(object):
         metadata = {
             "activity_id": self.activity_id,
             "user_id": self.user_id,
+            "meta_filename": file.filename
         }
 
         attachments_count = self.get_attachments_count()
@@ -143,10 +144,12 @@ class ScheduleActivities(object):
         return mongo.send_file(self.attachment_filename)
 
 
-    def get_attachment_filenames(self):
-        attachments = file_db.fs.files.distinct("filename", {"kwargs.activity_id": self.activity_id})
+    def get_all_attachments_by_activity_id(self):
+        attachments = file_db.fs.files.find({
+            "kwargs.activity_id": self.activity_id
+        }, {"_id": 1, "kwargs.meta_filename": 1, "filename": 1})
 
-        return jsonify({"attachments": attachments})
+        return jsonify({"attachments": json.loads(json.dumps(list(attachments), indent=4, cls=JsonEncoder))})
 
     
     def delete_activity_attachment(self):

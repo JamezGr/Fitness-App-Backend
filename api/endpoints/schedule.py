@@ -47,7 +47,7 @@ def upload_attachment():
 def get_attachments_list_by_activity_id(activity_id):
     print("getting list of attachments for activity id")
     print(activity_id)
-    return ScheduleActivities({"activity_id": activity_id}).get_attachment_filenames()
+    return ScheduleActivities({"activity_id": activity_id}).get_all_attachments_by_activity_id()
 
 
 @blueprint.route("schedule/attachments/<attachment_filename>", methods=['GET'])

@@ -54,34 +54,15 @@ class ScheduleActivities(object):
 
 
     def upload_attachment(self):
-        activity = self.get_activity_by_id()
         file = self.file
-
-        if activity is None:
-            print("No activity found for provided activity_id")
-            return response.set_ok({ "message": "No activity found for provided activity_id" })
-
-
-        if file.content_type not in ActivitySchema.allowed_attachment_files_by_type[activity["name"]]:
-            print("File type provided not allowed.")
-            return response.set_error({ "message": "Invalid File Type Provided." }, status=400)
-
         metadata = {
             "activity_id": self.activity_id,
             "user_id": self.user_id,
             "meta_filename": file.filename
         }
 
-        attachments_count = self.get_attachments_count()
-
-        if attachments_count >= ActivitySchema.max_attachments:
-            self.update_attachments_count_cached_value(attachments_count)
-            return response.set_ok({ "message": "No attachments uploaded. Maximum number of attachments uploaded have been reached." })
-
-        save_file(file=file, metadata=metadata)
-        self.update_attachments_count_cached_value(attachments_count + 1)
-
-        return response.set_ok({ "message": "ok" })
+        saved_file = save_file(file=file, metadata=metadata)
+        return saved_file
 
 
     def get_surpressed_fields(self):

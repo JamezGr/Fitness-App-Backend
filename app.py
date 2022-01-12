@@ -1,3 +1,4 @@
+from bson.errors import InvalidId
 from api.config import Config
 
 from api.response import *
@@ -42,12 +43,16 @@ CORS(app, supports_credentials=True)
 def method_not_allowed(e):
     return jsonify(ErrorMessage.METHOD_NOT_ALLOWED), 405
 
+# Prevent Invalid id passed as a request parameter
+@app.errorhandler(InvalidId)
+def invalid_id(e):
+    return jsonify({"message": "Invalid id provided."}), 400
+
 @jwt.expired_token_loader
 def my_expired_token_callback():
     error_message = ErrorMessage.EXPIRED_TOKEN
 
     return jsonify(error_message), 401
-
 
 app.register_blueprint(default.blueprint, url_prefix="/")
 app.register_blueprint(auth.blueprint, url_prefix=Config.ENDPOINT_PREFIX)

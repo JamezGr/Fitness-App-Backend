@@ -4,6 +4,7 @@ from api.models.schedule import ActivitySchema
 from api.utils import date_time, query, response
 from api.response import ErrorMessage, SuccessMessage
 from api.forms.schedule_activities import ScheduleActivities
+from api.utils.response import response_error, response_ok
 
 from flask import Blueprint
 from flask import jsonify, request
@@ -22,24 +23,35 @@ blueprint = Blueprint(name="schedule_endpoint", import_name=__name__)
 # @jwt_required
 def upload_attachment():
     if "file" not in request.files:
-        return jsonify({"error": "Expected 'file' to be provided"}), 400
+        return response_error(message="Expected 'file' to be provided")
 
     if "activity_id" not in request.form:
-        return jsonify({"error": "Expected 'activity_id' to be provided"}), 400
+        return response_error(message="Expected 'activity_id' to be provided")
 
+    file = request.files["file"]
 
-    activity_id = request.form["activity_id"]
-    user_id = request.form["user_id"]
-
-    request_body = {
-        "file": request.files["file"],
-        "activity_id": activity_id,
-        "user_id": user_id,
+    params = {
+        "file": file,
+        "activity_id": request.form["activity_id"],
+        "user_id": request.form["user_id"],
     }
 
-    response = ScheduleActivities(request_body).upload_attachment()
+    activity = ScheduleActivities(params)
+    activity_found = activity.get_activity_by_id()
 
-    return jsonify(response), response["status"]
+    if activity_found is None:
+        return response_error(message="No activity found for provided activity_id")
+
+    if file.content_type not in ActivitySchema.allowed_attachment_files_by_type[activity_found["name"]]:
+        return response_error(message="Invalid File Type Provided.")
+
+    attachments_count = activity.get_attachments_count()
+
+    if attachments_count >= ActivitySchema.max_attachments:
+        return response_error(message="No attachments uploaded. Maximum number of attachments uploaded have been reached.", status=304)
+
+    activity.upload_attachment()
+    return response_ok(message="ok");
 
 
 @blueprint.route("schedule/<activity_id>/attachments", methods=['GET'])

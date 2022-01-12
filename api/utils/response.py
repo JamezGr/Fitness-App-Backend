@@ -1,3 +1,6 @@
+from typing import Union
+from flask.json import jsonify
+
 def set_ok(data = None):
     success_reponse = {
         "success": True,
@@ -16,3 +19,27 @@ def set_error(errors, status = 400):
         "errors": errors,
         "status": status
     }
+
+
+def response_ok(message=None, status=200, data=Union[str, dict, list, int, float]):
+    response = {}
+
+    if message is not None:
+        response["message"] = message
+
+    if data is not None:
+        response["data"] = data
+
+    return jsonify(response), status
+
+
+def response_error(message=None, errors=None, status=400):
+    response = {}
+
+    if message is not None:
+        response["message"] = message
+
+    if errors is not None:
+        response["errors"] = errors
+    
+    return jsonify(response), status

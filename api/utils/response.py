@@ -21,7 +21,7 @@ def set_error(errors, status = 400):
     }
 
 
-def response_ok(message=None, status=200, data=Union[str, dict, list, int, float]):
+def response_ok(message=None, status=200, data=None):
     response = {}
 
     if message is not None:

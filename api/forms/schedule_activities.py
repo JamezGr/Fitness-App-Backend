@@ -56,8 +56,8 @@ class ScheduleActivities(object):
     def upload_attachment(self):
         file = self.file
         metadata = {
-            "activity_id": self.activity_id,
-            "user_id": self.user_id,
+            "activity_id": ObjectId(self.activity_id),
+            "user_id": ObjectId(self.user_id),
             "meta_filename": file.filename
         }
 
@@ -127,28 +127,25 @@ class ScheduleActivities(object):
 
     def get_all_attachments_by_activity_id(self):
         attachments = file_db.fs.files.find({
-            "kwargs.activity_id": self.activity_id
+            "kwargs.activity_id": ObjectId(self.activity_id)
         }, {"_id": 1, "kwargs.meta_filename": 1, "filename": 1})
 
-        return jsonify({"attachments": json.loads(json.dumps(list(attachments), indent=4, cls=JsonEncoder))})
+        return json.loads(json.dumps(list(attachments), indent=4, cls=JsonEncoder))
 
     
     def delete_activity_attachment(self):
         deleted_attachment = file_db.fs.files.delete_one({
-            "filename": self.attachment_filename,
-            "kwargs.activity_id": self.activity_id,
-            "kwargs.user_id": self.user_id
+            "_id": ObjectId(self.attachment_id),
+            "kwargs.activity_id": ObjectId(self.activity_id),
+            "kwargs.user_id": ObjectId(self.user_id)
         })
-
-        if deleted_attachment.deleted_count == 0:
-            return jsonify({"message": "No attachment was deleted"}), 304
 
         attachments_count_cached_value = self.get_attachments_count_cached_value()
 
-        if attachments_count_cached_value is not None and attachments_count_cached_value != 0:
+        if attachments_count_cached_value is not None and attachments_count_cached_value > 0:
             self.update_attachments_count_cached_value(attachments_count_cached_value - 1)
 
-        return jsonify({"message": "ok"})
+        return deleted_attachment
 
 
     def get_by_date_range(self):

@@ -11,16 +11,16 @@ from flask import jsonify, request
 from flask_jwt_extended import jwt_required
 from flask_expects_json import expects_json
 
-from webargs import fields, validate
+from webargs import fields
 from webargs.flaskparser import use_args
 
-from api.utils.files import get_request_file_size, limit_content_length
+from api.utils.files import limit_content_length
 
 blueprint = Blueprint(name="schedule_endpoint", import_name=__name__)
 
 @blueprint.route("schedule/attachments", methods=['POST'])
 @limit_content_length(ActivitySchema.max_attachment_size)
-# @jwt_required
+@jwt_required
 def upload_attachment():
     if "file" not in request.files:
         return response_error(message="Expected 'file' to be provided")
@@ -55,15 +55,16 @@ def upload_attachment():
 
 
 @blueprint.route("schedule/<activity_id>/attachments", methods=['GET'])
-# @jwt_required
+@jwt_required
 def get_attachments_list_by_activity_id(activity_id):
     print("getting list of attachments for activity id")
     print(activity_id)
-    return ScheduleActivities({"activity_id": activity_id}).get_all_attachments_by_activity_id()
+    attachments = ScheduleActivities({"activity_id": activity_id}).get_all_attachments_by_activity_id()
+    return response_ok(data=attachments)
 
 
 @blueprint.route("schedule/attachments/<attachment_filename>", methods=['GET'])
-# @jwt_required
+@jwt_required
 def get_attachment_by_filename(attachment_filename):
     print("getting attachment by filename")
 
@@ -71,22 +72,20 @@ def get_attachment_by_filename(attachment_filename):
 
 
 @blueprint.route("schedule/attachments", methods=['DELETE'])
-# @jwt_required
+@jwt_required
 @use_args({
-    "attachment_filename": fields.Str(
-        required=True
-    ),
-    "activity_id": fields.Str(
-        required=True,
-        validate=lambda id: query.object_id_is_valid(id)
-    ),
-    "user_id": fields.Str(
-        required=True,
-        validate=lambda id: query.object_id_is_valid(id)
-    )
+    "attachment_id": fields.Str(required=True),
+    "activity_id": fields.Str(required=True),
+    "user_id": fields.Str(required=True)
 })
-def delete_attachment_by_id(request_params):
-    return ScheduleActivities(request_params).delete_activity_attachment()
+def delete_multiple_attachments(request_params):
+    attachment = ScheduleActivities(request_params).delete_activity_attachment()
+
+    if attachment.deleted_count > 0:
+        return response_ok(message="ok")
+
+    else:
+        return response_error(message="No attachment was deleted", status=304)
 
 
 @blueprint.route("schedule", methods=['POST'])
